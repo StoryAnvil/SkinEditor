@@ -61,12 +61,35 @@ const skinBuffer = skinBufferCanvas.getContext("2d", {
   willReadFrequently: true,
 });
 
+const skinTempBufferCanvas = document.getElementById("skinTempBuffer");
+const skinTempBuffer = skinTempBufferCanvas.getContext("2d", {
+  willReadFrequently: true,
+});
+
 document.getElementById("setskin").onclick = () => {
   const username = prompt();
   loaderBitmap.load(
     "https://mineskin.eu/skin/" + username,
     (image) => {
-      skinBuffer.drawImage(image, 0, 0, 64, 64);
+      skinTempBuffer.clearRect(0, 0, 64, 64);
+      skinTempBuffer.drawImage(image, 0, 0, 64, 64);
+      for (let x = 0; x < 64; x++) {
+        for (let y = 0; y < 64; y++) {
+          const data = skinTempBuffer.getImageData(x, y, 1, 1);
+          if (
+            data.data[0] == 255 &&
+            data.data[1] == 255 &&
+            data.data[2] == 255 &&
+            data.data[3] == 255
+          ) {
+            skinBuffer.fillStyle =
+              "rgba(" + 250 + "," + 250 + "," + 250 + "," + 255 / 255 + ")";
+            skinBuffer.fillRect(x, y, 1, 1);
+          } else if (data.data[3] == 255) {
+            skinBuffer.putImageData(data, x, y);
+          }
+        }
+      }
       render();
     },
     undefined,
@@ -74,15 +97,25 @@ document.getElementById("setskin").onclick = () => {
   );
 };
 
+const invisible = skinBuffer.createImageData(1, 1);
+
 const loadImage = (image) => {
   loaderBitmap.load(
     image,
     (image) => {
-      skinBuffer.drawImage(image, 0, 0, 64, 64);
+      skinTempBuffer.clearRect(0, 0, 64, 64);
+      skinTempBuffer.drawImage(image, 0, 0, 64, 64);
       for (let x = 0; x < 64; x++) {
         for (let y = 0; y < 64; y++) {
-          const data = skinBuffer.getImageData(x, y, 1, 1);
-          if (data.data[0] != 255) {
+          const data = skinTempBuffer.getImageData(x, y, 1, 1);
+          if (
+            data.data[0] == 255 &&
+            data.data[1] == 255 &&
+            data.data[2] == 255 &&
+            data.data[3] == 255
+          ) {
+            skinBuffer.putImageData(invisible, x, y);
+          } else if (data.data[3] == 255) {
             skinBuffer.putImageData(data, x, y);
           }
         }
