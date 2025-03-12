@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="canvasEdited" width="64" height="64"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvasEdited');
+        var ctxEdited = canvasEdited.getContext('2d');
+        const img = new Image();
+        img.src = "./KING90x.png";
+        img.addEventListener("load", () => {
+            ctxEdited.drawImage(img, 0, 0, canvasEdited.width, canvasEdited.height);
+        })
+    </script>
+</body>
+
+</html>
