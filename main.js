@@ -67,7 +67,7 @@ const skinTempBuffer = skinTempBufferCanvas.getContext("2d", {
 });
 
 document.getElementById("setskin").onclick = () => {
-  const username = prompt();
+  const username = prompt("Enter your minecraft username:");
   loaderBitmap.load(
     "https://mineskin.eu/skin/" + username,
     (image) => {

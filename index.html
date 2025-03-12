@@ -6,30 +6,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+        * {
+            box-sizing: border-box;
+            /*outline: 1px solid green !important;*/
+        }
+
         body {
             margin: 0;
+            padding: 0px;
+            font-family: "Roboto", sans-serif;
+        }
+
+        .card {
+            width: 35%;
+            aspect-ratio: 1/1;
+            background-color: aqua;
+        }
+
+        button {
+            height: 100%;
+        }
+
+        .tip b {
+            color: #ffc013;
         }
     </style>
 </head>
 
 <body id="body">
-    <div style="position: absolute; top: 15px; left: 15px;">
-        <button id="setskin">Set skin</button>
-        <br>
+    <canvas id="skinBuffer" width="64" height="64" style="position: absolute; right: 15px; top: 35px;"></canvas>
+
+    <div style="display: none;">
         <input id="post" type="text">
         <button id="set">Set</button>
         <br>
         <button id="export">Export</button>
     </div>
+
+    <div
+        style="position: absolute; top: 0px; left: 0px; right: 0px; background-color: #2b2b2b; padding: 0px; margin: 0px; height: 25px; display: flex; flex-direction: row;">
+        <a href="https://github.com/StoryAnvil/SkinEditor/issues/new/choose"><button>Report bugs</button></a>
+        <button id="setskin">Set skin</button>
+    </div>
+
+    <div style="background-color: #52525262; position: absolute; top: 25px; left: 0px; width: 15vw; bottom: 0px;">
+        s
+    </div>
+
+    <div style="background-color: #52525262; position: absolute; bottom: 25px; right: 25px; color: white;" class="tip">
+        Hold <b>right mouse button</b> and drag to move camera<br>
+        Hold <b>left mouse button</b> and drag to rotate<br>
+        <b>Scroll</b> to change zoom
+    </div>
+
     <script type="module" src="./main.js"></script>
-
-    <div>
-        <canvas id="skinBuffer" width="64" height="64" style="position: absolute; right: 5px; top: 5px;"></canvas>
-    </div>
-
-    <div style="display: none;">
-        <canvas style="position: absolute; right: 5px; top: 80px;" id="skinTempBuffer"></canvas>
-    </div>
+    <canvas style="position: absolute; display: none;" id="skinTempBuffer"></canvas>
 </body>
 
 </html>
