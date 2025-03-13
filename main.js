@@ -118,7 +118,7 @@ const addLayerRendering = (images) => {
           ) {
             //skinBuffer.putImageData(invisible, x, y);
             skinBuffer.putImageData(data, x, y);
-          } else if (data.data[3] == 255) {
+          } else if (data.data[3] != 0) {
             skinBuffer.putImageData(data, x, y);
           }
         }
@@ -188,15 +188,17 @@ window.storyanvil.logic = {
   },
 };
 
-const collectionElement = document.getElementById("collection");
-(() => {
-  let html = ``;
-  library.forEach((item) => {
-    html += `
+const collectionElement = {
+  Head: document.getElementById("collectionHead"),
+  Hands: document.getElementById("collectionHands"),
+  Body: document.getElementById("collectionBody"),
+  Pants: document.getElementById("collectionPants"),
+  Feet: document.getElementById("collectionFeet"),
+};
+library.forEach((item) => {
+  collectionElement[item.category].innerHTML += `
     <div class="card" onclick="window.storyanvil.logic.toggle('./templates/${item.id}.png')">
       <img title="${item.name}" src="templates/${item.id}_.png">
     </div>
     `;
-  });
-  collectionElement.innerHTML = html;
-})();
+});
