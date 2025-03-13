@@ -20,9 +20,20 @@
         }
 
         .card {
-            width: 35%;
-            aspect-ratio: 1/1;
-            background-color: aqua;
+            width: 50px;
+            height: 50px;
+            background-color: #535353;
+            border: 1px solid #979797;
+            padding: 0px;
+            margin: 0px;
+        }
+
+        .card img {
+            width: 100%;
+            height: 100%;
+            object-fit: scale-down;
+            padding: 0px;
+            margin: 0px;
         }
 
         button {
@@ -38,21 +49,15 @@
 <body id="body">
     <canvas id="skinBuffer" width="64" height="64" style="position: absolute; right: 15px; top: 35px;"></canvas>
 
-    <div style="display: none;">
-        <input id="post" type="text">
-        <button id="set">Set</button>
-        <br>
-        <button id="export">Export</button>
-    </div>
-
     <div
         style="position: absolute; top: 0px; left: 0px; right: 0px; background-color: #2b2b2b; padding: 0px; margin: 0px; height: 25px; display: flex; flex-direction: row;">
         <a href="https://github.com/StoryAnvil/SkinEditor/issues/new/choose"><button>Report bugs</button></a>
         <button id="setskin">Set skin</button>
+        <button onclick="window.storyanvil.logic.export()">Export</button>
     </div>
 
-    <div style="background-color: #52525262; position: absolute; top: 25px; left: 0px; width: 15vw; bottom: 0px;">
-        s
+    <div style="background-color: #52525262; position: absolute; top: 25px; left: 0px; width: 15vw; bottom: 0px; display: flex; flex-direction: row;"
+        id="collection">
     </div>
 
     <div style="background-color: #52525262; position: absolute; bottom: 25px; right: 25px; color: white;" class="tip">
@@ -63,6 +68,7 @@
 
     <script type="module" src="./main.js"></script>
     <canvas style="position: absolute; display: none;" id="skinTempBuffer"></canvas>
+    <canvas style="position: absolute; display: none;" id="originalSkinBuffer"></canvas>
 </body>
 
 </html>
