@@ -1,50 +1,60 @@
-export const library = [
-  {
+export const library = {
+  all: [
+    "cat",
+    "pants",
+    "santa",
+    "cool_glasses",
+    "gloves",
+    "boots",
+    "blank_shirt",
+    "sneakers",
+  ],
+  cat: {
     name: "Cat Ears",
-    id: "cat",
     category: "Head",
-    author: "Unknown",
+    support: "wide",
+    variants: [],
   },
-  {
+  pants: {
     name: "Pants",
-    id: "pants",
     category: "Pants",
-    author: "BloodRain121",
+    support: "wide",
+    variants: [],
   },
-  {
+  santa: {
     name: "Santa Hat",
-    id: "santa",
     category: "Head",
-    author: "BloodRain121",
+    support: "wide",
+    variants: [],
   },
-  {
+  cool_glasses: {
     name: "Cool Glasses",
-    id: "cool-glasses",
     category: "Head",
-    author: "BloodRain121",
+    support: "wide",
+    variants: [],
   },
-  {
+  gloves: {
     name: "Gloves",
-    id: "gloves",
     category: "Hands",
-    author: "BloodRain121",
+    support: "wide",
+    variants: [],
   },
-  {
+  boots: {
     name: "Boots",
-    id: "boots",
     category: "Feet",
-    author: "BloodRain121",
+    support: "wide",
+    variants: [],
   },
-  {
+  blank_shirt: {
     name: "Blank T-Shirt",
-    id: "blank_shirt",
     category: "Body",
-    author: "BloodRain121",
+    support: "wide",
+    variants: [],
   },
-  {
+  sneakers: {
     name: "Sneakers",
-    id: "sneakers",
     category: "Feet",
-    author: "BloodRain121",
+    support: "wide",
+    variants: [],
   },
-];
+};

@@ -23,22 +23,34 @@ const camera = new THREE.PerspectiveCamera(
   1000
 );
 const invisible = skinBuffer.createImageData(1, 1);
+let slim = false;
 let object;
 let controls;
 const loader = new GLTFLoader();
 const loaderBitmap = new THREE.ImageBitmapLoader();
-loader.load(
-  `./model.gltf`,
-  function (gltf) {
-    object = gltf.scene;
-    scene.add(object);
-    setskin("./default.png");
-  },
-  function (xhr) {
-    console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-  },
-  console.error
-);
+const searchParams = new URLSearchParams(window.location.search);
+(() => {
+  const username = searchParams.has("u")
+    ? searchParams.get("u")
+    : prompt("Enter your minecraft username:");
+  slim = searchParams.has("slim")
+    ? searchParams.get("slim") === "true"
+      ? true
+      : false
+    : confirm("Press ok only if your skin is slim unless press cancel");
+  loader.load(
+    slim ? `./templates/model/slim.gltf` : `./templates/model/wide.gltf`,
+    function (gltf) {
+      object = gltf.scene;
+      scene.add(object);
+      setskin("https://mineskin.eu/skin/" + username);
+    },
+    function (xhr) {
+      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+    },
+    console.error
+  );
+})();
 const renderer = new THREE.WebGLRenderer({ alpha: false });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById("body").appendChild(renderer.domElement);
@@ -96,8 +108,7 @@ const setskin = (l) => {
   );
 };
 document.getElementById("setskin").onclick = () => {
-  const username = prompt("Enter your minecraft username:");
-  setskin("https://mineskin.eu/skin/" + username);
+  window.location.reload();
 };
 
 const addLayerRendering = (images) => {
@@ -180,6 +191,13 @@ window.storyanvil.logic = {
       window.storyanvil.logic.removeLayer(name);
     }
   },
+  onclick: (name, variant) => {
+    if (!supportCheck(library[name].support)) return;
+
+    window.storyanvil.logic.toggle(
+      `templates/${slim ? "slim" : "wide"}/${name}${variant}.png`
+    );
+  },
   export: () => {
     var link = document.createElement("a");
     link.download = "skin.png";
@@ -188,17 +206,61 @@ window.storyanvil.logic = {
   },
 };
 
-const collectionElement = {
-  Head: document.getElementById("collectionHead"),
-  Hands: document.getElementById("collectionHands"),
-  Body: document.getElementById("collectionBody"),
-  Pants: document.getElementById("collectionPants"),
-  Feet: document.getElementById("collectionFeet"),
-};
-library.forEach((item) => {
-  collectionElement[item.category].innerHTML += `
-    <div class="card" onclick="window.storyanvil.logic.toggle('./templates/${item.id}.png')">
-      <img title="${item.name}" src="templates/${item.id}_.png">
-    </div>
+const supportCheck = (tag) => tag === "*" || tag === (slim ? "slim" : "wide");
+(() => {
+  const collectionElement = {
+    Head: document.getElementById("collectionHead"),
+    Hands: document.getElementById("collectionHands"),
+    Body: document.getElementById("collectionBody"),
+    Pants: document.getElementById("collectionPants"),
+    Feet: document.getElementById("collectionFeet"),
+  };
+  const card = (id, v, item, b) => {
+    const m = () => {
+      if (item.variants.length == 0) return "";
+      let html = ``;
+      item.variants.forEach((variant) => {
+        html += card(
+          `${id}`,
+          variant,
+          {
+            name: item.name,
+            category: item.category,
+            support: item.support,
+            variants: [],
+          },
+          false
+        );
+      });
+      return html;
+    };
+    const c = b
+      ? `const l = document.getElementById('library_variants_${id}');l.style.display=l.style.display=='none'?'flex':'none';`
+      : `window.storyanvil.logic.onclick('${id}', '${v}')`;
+    return `
+      <div class="card${
+        supportCheck(item.support) ? "" : " unsupported"
+      }" onclick="${c}">
+        <img title="${item.name}" src="templates/preview/${id}${v}.png">
+        <div id="library_variants_${id}${v}" class="cardVariants" style="display: none; z-index: 500; position: relative; top: -110%, left: 0%; width: fit-content; outline: 5px solid green;">
+          ${m()}
+        </div>
+      </div>
     `;
-});
+  };
+  library.all.forEach((id) => {
+    const item = library[id];
+
+    if (item.variants.length == 0) {
+      collectionElement[item.category].innerHTML += `
+        <div class="card${
+          supportCheck(item.support) ? "" : " unsupported"
+        }" onclick="window.storyanvil.logic.onclick('${id}', '')">
+          <img title="${item.name}" src="templates/preview/${id}.png">
+        </div>
+      `;
+    } else {
+      collectionElement[item.category].innerHTML += card(id, "", item, true);
+    }
+  });
+})();
