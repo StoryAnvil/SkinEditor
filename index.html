@@ -1,85 +1,69 @@
+<!--
+    Copyright (C) 2025, StoryAnvil (https://github.com/StoryAnvil)
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. If not, see <https://www.gnu.org/licenses/>.
+-->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
-
-        * {
-            box-sizing: border-box;
-            /*outline: 1px solid green !important;*/
-        }
-
-        body {
-            margin: 0;
-            padding: 0px;
-            font-family: "Roboto", sans-serif;
-        }
-
-        .card {
-            width: 50px;
-            height: 50px;
-            background-color: #535353;
-            border: 1px solid #979797;
-            padding: 0px;
-            margin: 0px;
-        }
-
-        .unsupported {
-            background-color: #533232;
-            border: 1px solid #9e2f2f;
-        }
-
-        .card img {
-            width: 100%;
-            height: 100%;
-            object-fit: scale-down;
-            padding: 0px;
-            margin: 0px;
-        }
-
-        button {
-            height: 100%;
-        }
-
-        .tip b {
-            color: #ffc013;
-        }
-
-        h3 {
-            margin: 0px;
-        }
-
-        .modal {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #535353;
-            border-radius: 5px;
-            padding: 15px;
-        }
-    </style>
+    <title>Skin Editor</title>
+    <link rel="stylesheet" href="templates/stylesheet.css">
+    <link rel="license" href="https://raw.githubusercontent.com/StoryAnvil/SkinEditor/refs/heads/master/LICENSE" />
 </head>
 
 <body id="body">
-    <!-- <div class="modal" id="skinSelector">
-        Test
-    </div> -->
+    <div class="modal" id="skinSelector">
+        <h3>Select skin:</h3>
+        <div class="slide" id="skinSlide">
+        </div>
+    </div>
+    <div class="modal" id="skinReSelect" style="display: none;">
+        <h3>Are you sure?</h3>
+        Changing skin template will remove all your accessories but you will be able to select them again.
+        <div class="flex ch">
+            <button onclick="window.location.reload()" class="btn-red">Sure</button>
+            <button onclick="window.storyanvil.logic.toggleHTML('skinReSelect', 'block')"
+                class="btn-green">Cancel</button>
+        </div>
+    </div>
+    <div class="modal" id="skinExport" style="display: none;">
+        <h3>Export</h3>
+        <div style="display: flex; flex-direction: column; text-align: left;">
+            <div class="badge badge-green">This skin is fully compatible with vanilla minecraft!</div>
+            <div class="badge badge-red">Requires Ears mod. <a href="https://ears.y2k.diy/dl/forgejo.html">Download</a>
+            </div>
+        </div>
+        <div class="flex ch" style="padding-top: 15px;">
+            <button onclick="window.storyanvil.logic.export()" class="btn-red">Export</button>
+            <button onclick="window.storyanvil.logic.toggleHTML('skinExport', 'block')"
+                class="btn-green">Cancel</button>
+        </div>
+    </div>
 
     <canvas id="skinBuffer" width="64" height="64" style="position: absolute; right: 15px; top: 35px;"></canvas>
 
     <div
-        style="position: absolute; top: 0px; left: 0px; right: 0px; background-color: #2b2b2b; padding: 0px; margin: 0px; height: 25px; display: flex; flex-direction: row;">
+        style="position: absolute; top: 0px; left: 0px; right: 0px; background-color: #2b2b2b; padding: 0px; margin: 0px; height: 30px; display: flex; flex-direction: row;">
         <a href="https://github.com/StoryAnvil/SkinEditor/issues/new/choose"><button>Report bugs</button></a>
-        <button id="setskin">Set skin</button>
-        <button onclick="window.storyanvil.logic.export()">Export</button>
+        <button onclick="window.storyanvil.logic.toggleHTML('skinReSelect', 'block')">Set skin</button>
+        <button onclick="window.storyanvil.logic.toggleHTML('skinExport', 'block')">Export</button>
     </div>
 
-    <div style="overflow-y: auto; background-color: #52525262; position: absolute; top: 25px; left: 0px; width: 15vw; bottom: 0px; display: flex; align-content: flex-start; flex-wrap: wrap; flex-direction: column; color: white;"
+    <div style="overflow-y: auto; background-color: #52525262; position: absolute; top: 30px; left: 0px; width: 15vw; bottom: 0px; display: flex; align-content: flex-start; flex-wrap: wrap; flex-direction: column; color: white;"
         id="collection">
         <h3>Head</h3>
         <div id="collectionHead"
@@ -101,6 +85,11 @@
         <h3>Feet</h3>
         <div id="collectionFeet"
             style="display: flex; align-content: flex-start; flex-wrap: wrap; flex-direction: row;"></div>
+        <!--<h3>Ears</h3>
+        <div id="collectionEars"
+            style="display: flex; align-content: flex-start; flex-wrap: wrap; flex-direction: row;">
+            <div class="badge badge-red">This section requires <a href="https://ears.y2k.diy/">ears mod</a></div>
+        </div>-->
     </div>
 
     <div style="background-color: #52525262; position: absolute; bottom: 25px; right: 25px; color: white;" class="tip">

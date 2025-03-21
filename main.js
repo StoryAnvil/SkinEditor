@@ -1,3 +1,20 @@
+/*
+  Copyright (C) 2025, StoryAnvil (https://github.com/StoryAnvil)
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import * as THREE from "https://cdn.skypack.dev/three@0.129.0/build/three.module.js";
 import { OrbitControls } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js";
@@ -29,28 +46,6 @@ let controls;
 const loader = new GLTFLoader();
 const loaderBitmap = new THREE.ImageBitmapLoader();
 const searchParams = new URLSearchParams(window.location.search);
-(() => {
-  const username = searchParams.has("u")
-    ? searchParams.get("u")
-    : prompt("Enter your minecraft username:");
-  slim = searchParams.has("slim")
-    ? searchParams.get("slim") === "true"
-      ? true
-      : false
-    : confirm("Press ok only if your skin is slim unless press cancel");
-  loader.load(
-    slim ? `./templates/model/slim.gltf` : `./templates/model/wide.gltf`,
-    function (gltf) {
-      object = gltf.scene;
-      scene.add(object);
-      setskin("https://mineskin.eu/skin/" + username);
-    },
-    function (xhr) {
-      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-    },
-    console.error
-  );
-})();
 const renderer = new THREE.WebGLRenderer({ alpha: false });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById("body").appendChild(renderer.domElement);
@@ -107,10 +102,6 @@ const setskin = (l) => {
     console.error
   );
 };
-document.getElementById("setskin").onclick = () => {
-  window.location.reload();
-};
-
 const addLayerRendering = (images) => {
   if (images.length == 0) return;
   loaderBitmap.load(
@@ -187,16 +178,24 @@ window.storyanvil.logic = {
   toggle: (name) => {
     if (window.storyanvil.logic.layers.indexOf(name) == -1) {
       window.storyanvil.logic.addLayer(name);
+      return true;
     } else {
       window.storyanvil.logic.removeLayer(name);
+      return false;
     }
   },
-  onclick: (name, variant) => {
+  onclick: (name, variant, element) => {
     if (!supportCheck(library[name].support)) return;
 
-    window.storyanvil.logic.toggle(
-      `templates/${slim ? "slim" : "wide"}/${name}${variant}.png`
-    );
+    if (
+      window.storyanvil.logic.toggle(
+        `templates/${slim ? "slim" : "wide"}/${name}${variant}.png`
+      )
+    ) {
+      element.classList.add("active");
+    } else {
+      element.classList.remove("active");
+    }
   },
   export: () => {
     var link = document.createElement("a");
@@ -204,9 +203,44 @@ window.storyanvil.logic = {
     link.href = skinBufferCanvas.toDataURL();
     link.click();
   },
+  selectSkin: (id, type) => {
+    document.getElementById("skinSelector").style.display = "none";
+    loader.load(
+      type == "slim"
+        ? `./templates/model/slim.gltf`
+        : `./templates/model/wide.gltf`,
+      function (gltf) {
+        object = gltf.scene;
+        scene.add(object);
+        setskin(`./templates/base/${id}.png`);
+      },
+      function (xhr) {
+        console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+      },
+      console.error
+    );
+  },
+  toggleHTML: (id, d) => {
+    const element = document.getElementById(id);
+    if (element.style.display == "none") {
+      element.style.display = d;
+    } else {
+      element.style.display = "none";
+    }
+  },
 };
 
 const supportCheck = (tag) => tag === "*" || tag === (slim ? "slim" : "wide");
+(() => {
+  const skinModal = document.getElementById("skinSlide");
+  library.base.forEach((base) => {
+    skinModal.innerHTML += `
+    <div onclick="window.storyanvil.logic.selectSkin('${base[0]}', '${base[1]}');" class="e">
+      <img src="templates/base/${base[0]}_preview.png" title="${base[0]}_preview">
+      <div class="badge badge-red">${base[1]}</div>
+    </div>`;
+  });
+})();
 (() => {
   const collectionElement = {
     Head: document.getElementById("collectionHead"),
@@ -214,6 +248,7 @@ const supportCheck = (tag) => tag === "*" || tag === (slim ? "slim" : "wide");
     Body: document.getElementById("collectionBody"),
     Pants: document.getElementById("collectionPants"),
     Feet: document.getElementById("collectionFeet"),
+    Ears: document.getElementById("collectionEars"),
   };
   const card = (id, v, item, b) => {
     const m = () => {
@@ -236,13 +271,13 @@ const supportCheck = (tag) => tag === "*" || tag === (slim ? "slim" : "wide");
     };
     const c = b
       ? `const l = document.getElementById('library_variants_${id}');l.style.display=l.style.display=='none'?'flex':'none';`
-      : `window.storyanvil.logic.onclick('${id}', '${v}')`;
+      : `window.storyanvil.logic.onclick('${id}', '${v}', this)`;
     return `
       <div class="card${
         supportCheck(item.support) ? "" : " unsupported"
       }" onclick="${c}">
         <img title="${item.name}" src="templates/preview/${id}${v}.png">
-        <div id="library_variants_${id}${v}" class="cardVariants" style="display: none; z-index: 500; position: relative; top: -110%, left: 0%; width: fit-content; outline: 5px solid green;">
+        <div id="library_variants_${id}${v}" class="cardVariants" style="display: none; z-index: 500; position: relative; top: -110%, left: 0%; width: fit-content; outline: 5px solid green; flex-direction: column">
           ${m()}
         </div>
       </div>
@@ -255,7 +290,7 @@ const supportCheck = (tag) => tag === "*" || tag === (slim ? "slim" : "wide");
       collectionElement[item.category].innerHTML += `
         <div class="card${
           supportCheck(item.support) ? "" : " unsupported"
-        }" onclick="window.storyanvil.logic.onclick('${id}', '')">
+        }" onclick="window.storyanvil.logic.onclick('${id}', '', this)">
           <img title="${item.name}" src="templates/preview/${id}.png">
         </div>
       `;
