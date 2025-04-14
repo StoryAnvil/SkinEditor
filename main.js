@@ -71,7 +71,14 @@ window.addEventListener("resize", function () {
 });
 
 animate();
+function componentToHex(c) {
+  var hex = c.toString(16);
+  return hex.length == 1 ? "0" + hex : hex;
+}
 
+function rgbToHex(r, g, b) {
+  return "#" + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
+}
 const setskin = (l) => {
   loaderBitmap.load(
     l,
@@ -105,22 +112,27 @@ const setskin = (l) => {
 const addLayerRendering = (images) => {
   if (images.length == 0) return;
   loaderBitmap.load(
-    images[0],
+    images[0].id,
     (image) => {
       skinTempBuffer.clearRect(0, 0, 64, 64);
       skinTempBuffer.drawImage(image, 0, 0, 64, 64);
       for (let x = 0; x < 64; x++) {
         for (let y = 0; y < 64; y++) {
           const data = skinTempBuffer.getImageData(x, y, 1, 1);
+          if (data.data[3] == 0) continue;
           if (
-            data.data[0] == 255 &&
-            data.data[1] == 255 &&
-            data.data[2] == 255 &&
-            data.data[3] == 255
+            images[0].hasOwnProperty("recolor") &&
+            images[0].recolor.hasOwnProperty(
+              `${data.data[0]}${data.data[1]}${data.data[2]}`
+            )
           ) {
-            //skinBuffer.putImageData(invisible, x, y);
-            skinBuffer.putImageData(data, x, y);
-          } else if (data.data[3] != 0) {
+            const newColor =
+              images[0].recolor[
+                `${data.data[0]}${data.data[1]}${data.data[2]}`
+              ];
+            skinBuffer.fillStyle = newColor;
+            skinBuffer.fillRect(x, y, 1, 1);
+          } else {
             skinBuffer.putImageData(data, x, y);
           }
         }
@@ -148,13 +160,44 @@ function render() {
   });
 }
 
+setInterval(() => {
+  if (window.storyanvil.logic.needsUpdate) {
+    window.storyanvil.logic.rebuild();
+    window.storyanvil.logic.needsUpdate = true;
+  }
+}, 250);
+
 // Object to encapsulate logic from 3d stuff
 window.storyanvil = {};
 window.storyanvil.logic = {
   layers: [],
+  needsUpdate: false,
   addLayer: (name) => {
-    window.storyanvil.logic.layers.push(name);
-    addLayerRendering([name]);
+    window.storyanvil.logic.layers.push({ id: name });
+    addLayerRendering([{ id: name }]);
+  },
+  setColored: (name, color, newColor) => {
+    const index = window.storyanvil.logic.layers.findIndex((m) => {
+      return m.id == name;
+    });
+
+    if (index == -1) {
+      let c = {};
+      c[`${color}`] = newColor;
+      window.storyanvil.logic.layers.push({
+        id: name,
+        recolor: c,
+      });
+      addLayerRendering([{ id: name, recolor: {} }]);
+    } else {
+      let c = window.storyanvil.logic.layers[index].recolor;
+      c[color] = newColor;
+      window.storyanvil.logic.layers[index] = {
+        id: name,
+        recolor: c,
+      };
+      window.storyanvil.logic.needsUpdate = true;
+    }
   },
   rebuild: () => {
     skinBuffer.clearRect(0, 0, 64, 64);
@@ -170,13 +213,19 @@ window.storyanvil.logic = {
   },
   removeLayer: (name) => {
     window.storyanvil.logic.layers.splice(
-      window.storyanvil.logic.layers.indexOf(name),
+      window.storyanvil.logic.layers.findIndex((m) => {
+        return m.id == name;
+      }),
       1
     );
     window.storyanvil.logic.rebuild();
   },
   toggle: (name) => {
-    if (window.storyanvil.logic.layers.indexOf(name) == -1) {
+    if (
+      window.storyanvil.logic.layers.findIndex((m) => {
+        return m.id == name;
+      }) == -1
+    ) {
       window.storyanvil.logic.addLayer(name);
       return true;
     } else {
@@ -286,16 +335,42 @@ const supportCheck = (tag) => tag === "*" || tag === (slim ? "slim" : "wide");
   library.all.forEach((id) => {
     const item = library[id];
 
-    if (item.variants.length == 0) {
+    if (item.recolor) {
+      let colorEditors = "";
+      item.recolor.forEach((color) => {
+        colorEditors += `
+        <input type="color" id="colorVariant_${id}_${
+          color[0] + color[1] + color[2]
+        }" value="${rgbToHex(
+          color[0],
+          color[1],
+          color[2]
+        )}" oninput="window.storyanvil.logic.setColored(\`templates/${
+          slim ? "slim" : "wide"
+        }/${id}.png\`, \`${color[0]}${color[1]}${color[2]}\`, this.value);">
+        `;
+      });
+
       collectionElement[item.category].innerHTML += `
+      <div class="card" onclick="const l = document.getElementById('library_variants_${id}');l.style.display=l.style.display=='none'?'flex':'none';">
+        <img title="${item.name}" src="templates/preview/${id}.png">
+        <div id="library_variants_${id}" class="cardVariants" style="display: none; z-index: 500; position: relative; top: -110%, left: 0%; width: fit-content; outline: 5px solid green; flex-direction: column">
+          ${colorEditors}
+        </div>
+      </div>
+      `;
+    } else {
+      if (item.variants.length == 0) {
+        collectionElement[item.category].innerHTML += `
         <div class="card${
           supportCheck(item.support) ? "" : " unsupported"
         }" onclick="window.storyanvil.logic.onclick('${id}', '', this)">
           <img title="${item.name}" src="templates/preview/${id}.png">
         </div>
       `;
-    } else {
-      collectionElement[item.category].innerHTML += card(id, "", item, true);
+      } else {
+        collectionElement[item.category].innerHTML += card(id, "", item, true);
+      }
     }
   });
 })();
