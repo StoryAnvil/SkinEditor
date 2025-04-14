@@ -40,6 +40,16 @@
                 class="btn-green">Cancel</button>
         </div>
     </div>
+    <div class="modal" id="skinImport" style="display: none;">
+        <h3>Are your skin slim?</h3>
+        Choose type of you skin
+        <div class="flex ch">
+            <button onclick="window.storyanvil.logic.putSkin(prompt('What is you minecraft username?'), false)"
+                class="btn-red">Slim</button>
+            <button onclick="window.storyanvil.logic.putSkin(prompt('What is you minecraft username?'), true)"
+                class="btn-red">Wide</button>
+        </div>
+    </div>
     <div class="modal" id="skinExport" style="display: none;">
         <h3>Export</h3>
         <div style="display: flex; flex-direction: column; text-align: left;">

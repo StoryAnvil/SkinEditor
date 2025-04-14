@@ -163,7 +163,7 @@ function render() {
 setInterval(() => {
   if (window.storyanvil.logic.needsUpdate) {
     window.storyanvil.logic.rebuild();
-    window.storyanvil.logic.needsUpdate = true;
+    window.storyanvil.logic.needsUpdate = false;
   }
 }, 250);
 
@@ -198,6 +198,24 @@ window.storyanvil.logic = {
       };
       window.storyanvil.logic.needsUpdate = true;
     }
+  },
+  putSkin: (username, type) => {
+    document.getElementById("skinSelector").style.display = "none";
+    document.getElementById("skinImport").style.display = "none";
+    loader.load(
+      type == "slim"
+        ? `./templates/model/slim.gltf`
+        : `./templates/model/wide.gltf`,
+      function (gltf) {
+        object = gltf.scene;
+        scene.add(object);
+        setskin(`https://mineskin.eu/skin/${username}`, type ? "wide" : "slim");
+      },
+      function (xhr) {
+        console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+      },
+      console.error
+    );
   },
   rebuild: () => {
     skinBuffer.clearRect(0, 0, 64, 64);
@@ -253,6 +271,11 @@ window.storyanvil.logic = {
     link.click();
   },
   selectSkin: (id, type) => {
+    if (id == "load_skin") {
+      document.getElementById("skinSelector").style.display = "none";
+      document.getElementById("skinImport").style.display = "block";
+      return;
+    }
     document.getElementById("skinSelector").style.display = "none";
     loader.load(
       type == "slim"
@@ -356,6 +379,7 @@ const supportCheck = (tag) => tag === "*" || tag === (slim ? "slim" : "wide");
         <img title="${item.name}" src="templates/preview/${id}.png">
         <div id="library_variants_${id}" class="cardVariants" style="display: none; z-index: 500; position: relative; top: -110%, left: 0%; width: fit-content; outline: 5px solid green; flex-direction: column">
           ${colorEditors}
+          <button onclick="window.storyanvil.logic.removeLayer('cat')">Remove</button>
         </div>
       </div>
       `;
