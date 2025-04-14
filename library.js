@@ -29,6 +29,7 @@ export const library = {
     "metal_arm",
   ],
   base: [
+    ["load_skin", "Load your minecraft skin"],
     ["female_0", "slim"],
     ["male_0", "wide"],
   ],
@@ -37,6 +38,10 @@ export const library = {
     category: "Head",
     support: "wide",
     variants: [],
+    recolor: [
+      ["255", "255", "255"],
+      ["245", "200", "214"],
+    ],
     author: "BloodRain121",
   },
   pants: {
