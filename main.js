@@ -321,6 +321,7 @@ const supportCheck = (tag) => tag === "*" || tag === (slim ? "slim" : "wide");
     Pants: document.getElementById("collectionPants"),
     Feet: document.getElementById("collectionFeet"),
     Ears: document.getElementById("collectionEars"),
+    Eyes: document.getElementById("collectionEyes"),
   };
   const card = (id, v, item, b) => {
     const m = () => {

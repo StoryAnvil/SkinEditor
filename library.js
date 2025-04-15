@@ -27,6 +27,11 @@ export const library = {
     "unnamed",
     "watch",
     "metal_arm",
+    "eye2_2",
+    "eye2_3",
+    "eye2_4",
+    "eye4_2",
+    "eye4_3",
   ],
   base: [
     ["load_skin", "Load your minecraft skin"],
@@ -113,5 +118,60 @@ export const library = {
     support: "wide",
     variants: ["", "_copper"],
     author: "BloodRain121",
+  },
+  eye2_2: {
+    name: "2-Pixel eyes +2",
+    category: "Eyes",
+    support: "wide",
+    variants: [],
+    recolor: [
+      ["255", "255", "255"],
+      ["0", "0", "0"],
+    ],
+    author: "DenisJava",
+  },
+  eye2_3: {
+    name: "2-Pixel eyes +3",
+    category: "Eyes",
+    support: "wide",
+    variants: [],
+    recolor: [
+      ["255", "255", "255"],
+      ["0", "0", "0"],
+    ],
+    author: "DenisJava",
+  },
+  eye2_4: {
+    name: "2-Pixel eyes +4",
+    category: "Eyes",
+    support: "wide",
+    variants: [],
+    recolor: [
+      ["255", "255", "255"],
+      ["0", "0", "0"],
+    ],
+    author: "DenisJava",
+  },
+  eye4_2: {
+    name: "4-Pixel eyes +2",
+    category: "Eyes",
+    support: "wide",
+    variants: [],
+    recolor: [
+      ["255", "255", "255"],
+      ["0", "0", "0"],
+    ],
+    author: "DenisJava",
+  },
+  eye4_3: {
+    name: "4-Pixel eyes +3",
+    category: "Eyes",
+    support: "wide",
+    variants: [],
+    recolor: [
+      ["255", "255", "255"],
+      ["0", "0", "0"],
+    ],
+    author: "DenisJava",
   },
 };
