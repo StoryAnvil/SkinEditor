@@ -79,6 +79,14 @@ function componentToHex(c) {
 function rgbToHex(r, g, b) {
   return "#" + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
 }
+function hexToRgb(hex) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
+}
 const setskin = (l) => {
   loaderBitmap.load(
     l,
@@ -138,11 +146,13 @@ const addLayerRendering = (images) => {
               images[0].recolor[
               `${data.data[0]}${data.data[1]}${data.data[2]}`
               ];
-            skinBuffer.fillStyle = newColor;
+            const cr = hexToRgb(newColor);
+            skinBuffer.fillStyle = `rgba(${cr.r}, ${cr.g}, ${cr.b}, ${data.data[3]})`;
             skinBuffer.fillRect(x + xOffset, y + yOffset, 1, 1);
           } else {
             skinBuffer.putImageData(data, x + xOffset, y + yOffset);
           }
+          //console.log(data.data);
         }
       }
       if (images.length == 1) {
@@ -180,9 +190,62 @@ window.storyanvil = {};
 window.storyanvil.logic = {
   layers: [],
   needsUpdate: false,
+  addLayerToViewer: (name) => {
+    const splot = name.split("/");
+    document.getElementById("viewerPortThingNameID").innerHTML += `
+    <div id="viewerPortThing_${name}" style="display: flex; flex-direction: row; align-items: center;">
+    <button onclick="window.storyanvil.logic.moveUp('${name}')">↑</button>
+    <button onclick="window.storyanvil.logic.moveDown('${name}')" style="margin-right: 3px;">↓</button>
+    ${splot[splot.length - 1].replace(".png", "").replace("_", " ")}
+    </div>
+    `;
+  },
+  rebuildViewer: () => {
+    document.getElementById("viewerPortThingNameID").innerHTML = "";
+    window.storyanvil.logic.layers.forEach((elem) => {
+      window.storyanvil.logic.addLayerToViewer(elem.id);
+    });
+  },
+  moveUp: (name) => {
+    const index = window.storyanvil.logic.layers.findIndex((m) => {
+      return m.id == name;
+    });
+    if (index != 0) {
+      const temp = window.storyanvil.logic.layers[index];
+      const temp_ = window.storyanvil.logic.layers[index - 1];
+      window.storyanvil.logic.layers[index] = temp_;
+      window.storyanvil.logic.layers[index - 1] = temp;
+      window.storyanvil.logic.rebuildViewer();
+      window.storyanvil.logic.rebuild();
+    }
+  },
+  moveDown: (name) => {
+    const index = window.storyanvil.logic.layers.findIndex((m) => {
+      return m.id == name;
+    });
+    if (index != window.storyanvil.logic.layers.length - 1) {
+      const temp = window.storyanvil.logic.layers[index];
+      const temp_ = window.storyanvil.logic.layers[index + 1];
+      window.storyanvil.logic.layers[index] = temp_;
+      window.storyanvil.logic.layers[index + 1] = temp;
+      window.storyanvil.logic.rebuildViewer();
+      window.storyanvil.logic.rebuild();
+    }
+  },
+  removeLayerToViewer: (name) => {
+    const ele = document.getElementById("viewerPortThing_" + name);
+    if (ele == undefined) return;
+    ele.remove();
+  },
   addLayer: (name) => {
-    window.storyanvil.logic.layers.push({ id: name });
-    addLayerRendering([{ id: name }]);
+    let offset = {};
+    offset['-X'] = 0;
+    offset['-Y'] = 0;
+    offset['+X'] = 0;
+    offset['+Y'] = 0;
+    window.storyanvil.logic.layers.push({ id: name, offset: offset });
+    window.storyanvil.logic.addLayerToViewer(name);
+    addLayerRendering([{ id: name, offset: offset }]);
   },
   setColored: (name, color, newColor) => {
     const index = window.storyanvil.logic.layers.findIndex((m) => {
@@ -200,7 +263,9 @@ window.storyanvil.logic = {
       window.storyanvil.logic.layers.push({
         id: name,
         recolor: c,
+        offset: offset
       });
+      window.storyanvil.logic.addLayerToViewer(name);
       addLayerRendering([{ id: name, recolor: {}, offset: offset }]);
     } else {
       let c = window.storyanvil.logic.layers[index].recolor;
@@ -231,6 +296,7 @@ window.storyanvil.logic = {
         recolor: {},
         offset: offset
       });
+      window.storyanvil.logic.addLayerToViewer(name);
       addLayerRendering([{ id: name, recolor: {}, offset: offset }]);
     } else {
       let offset = window.storyanvil.logic.layers[index].offset;
@@ -280,6 +346,7 @@ window.storyanvil.logic = {
       }),
       1
     );
+    window.storyanvil.logic.removeLayerToViewer(name);
     window.storyanvil.logic.rebuild();
   },
   toggle: (name) => {
@@ -428,7 +495,7 @@ const supportCheck = (tag) => tag === "*" || tag === (slim ? "slim" : "wide");
         <div id="library_variants_${id}" class="cardVariants" style="display: none; z-index: 500; position: relative; top: -110%, left: 0%; width: fit-content; outline: 5px solid green; flex-direction: column">
           ${mixin}
           <br>
-          <button onclick="window.storyanvil.logic.removeLayer('${id}')">Remove</button>
+          <button onclick="window.storyanvil.logic.removeLayer(\`templates/${slim ? "slim" : "wide"}/${id}.png\`)">Remove</button>
         </div>
       </div>
       `;

@@ -29,6 +29,7 @@ export const library = {
     "metal_arm",
     "eye2_2",
     "eye4_2",
+    //"modern_eyeglasses"
   ],
   base: [
     ["load_skin", "Load your minecraft skin"],
@@ -138,4 +139,15 @@ export const library = {
     offset: ["-Y", 0, 2],
     author: "DenisJava",
   },
+  modern_eyeglasses: {
+    name: "Modern eyeglasses",
+    category: "Head",
+    suppor: "wide",
+    variants: [],
+    offset: ["-Y", 0, 2],
+    recolor: [
+      ["10", "203", "219"]
+    ],
+    author: "DenisJava"
+  }
 };
