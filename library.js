@@ -27,6 +27,9 @@ export const library = {
     "unnamed",
     "watch",
     "metal_arm",
+    "eye2_2",
+    "eye4_2",
+    //"modern_eyeglasses"
   ],
   base: [
     ["load_skin", "Load your minecraft skin"],
@@ -114,4 +117,37 @@ export const library = {
     variants: ["", "_copper"],
     author: "BloodRain121",
   },
+  eye2_2: {
+    name: "2-Pixel eyes +2",
+    category: "Eyes",
+    support: "wide",
+    variants: [],
+    recolor: [
+      ["255", "255", "255"], ["0", "0", "0"],
+    ],
+    offset: ["-Y", 0, 2],
+    author: "DenisJava",
+  },
+  eye4_2: {
+    name: "4-Pixel eyes +2",
+    category: "Eyes",
+    support: "wide",
+    variants: [],
+    recolor: [
+      ["255", "255", "255"], ["0", "0", "0"],
+    ],
+    offset: ["-Y", 0, 2],
+    author: "DenisJava",
+  },
+  modern_eyeglasses: {
+    name: "Modern eyeglasses",
+    category: "Head",
+    suppor: "wide",
+    variants: [],
+    offset: ["-Y", 0, 2],
+    recolor: [
+      ["10", "203", "219"]
+    ],
+    author: "DenisJava"
+  }
 };

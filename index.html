@@ -40,6 +40,16 @@
                 class="btn-green">Cancel</button>
         </div>
     </div>
+    <div class="modal" id="skinImport" style="display: none;">
+        <h3>Are your skin slim?</h3>
+        Choose type of you skin
+        <div class="flex ch">
+            <button onclick="window.storyanvil.logic.putSkin(prompt('What is you minecraft username?'), false)"
+                class="btn-red">Slim</button>
+            <button onclick="window.storyanvil.logic.putSkin(prompt('What is you minecraft username?'), true)"
+                class="btn-red">Wide</button>
+        </div>
+    </div>
     <div class="modal" id="skinExport" style="display: none;">
         <h3>Export</h3>
         <div style="display: flex; flex-direction: column; text-align: left;">
@@ -64,7 +74,7 @@
         <button onclick="window.storyanvil.logic.toggleHTML('skinExport', 'block')">Export</button>
     </div>
 
-    <div style="overflow-y: auto; background-color: #52525262; position: absolute; top: 30px; left: 0px; width: 15vw; bottom: 0px; display: flex; align-content: flex-start; flex-wrap: wrap; flex-direction: column; color: white;"
+    <div style="overflow-y: auto; background-color: #52525262; position: absolute; top: 30px; left: 0px; width: 15vw; bottom: 0px; display: flex; align-content: flex-start; flex-wrap: nowrap; flex-direction: column; color: white;"
         id="collection">
         <h3>Head</h3>
         <div id="collectionHead"
@@ -86,11 +96,19 @@
         <h3>Feet</h3>
         <div id="collectionFeet"
             style="display: flex; align-content: flex-start; flex-wrap: wrap; flex-direction: row;"></div>
+        <br>
+        <h3>Eyes</h3>
+        <div id="collectionEyes"
+            style="display: flex; align-content: flex-start; flex-wrap: wrap; flex-direction: row;"></div>
         <!--<h3>Ears</h3>
         <div id="collectionEars"
             style="display: flex; align-content: flex-start; flex-wrap: wrap; flex-direction: row;">
             <div class="badge badge-red">This section requires <a href="https://ears.y2k.diy/">ears mod</a></div>
         </div>-->
+    </div>
+
+    <div style="overflow-y: auto; background-color: #52525262; position: absolute; height: 180px; left: 17vw; width: 15vw; bottom: 2vw; display: flex; align-content: flex-start; flex-wrap: nowrap; flex-direction: column; color: white;"
+        id="viewerPortThingNameID">
     </div>
 
     <div style="background-color: #52525262; position: absolute; bottom: 25px; right: 25px; color: white;" class="tip">
