@@ -119,6 +119,14 @@ const addLayerRendering = (images) => {
       for (let x = 0; x < 64; x++) {
         for (let y = 0; y < 64; y++) {
           const data = skinTempBuffer.getImageData(x, y, 1, 1);
+          let xOffset = 0;
+          let yOffset = 0;
+          if (images[0].hasOwnProperty("offset")) {
+            xOffset -= images[0]['offset']['-X'];
+            xOffset += images[0]['offset']['+X'];
+            yOffset -= images[0]['offset']['-Y'];
+            yOffset += images[0]['offset']['+Y'];
+          }
           if (data.data[3] == 0) continue;
           if (
             images[0].hasOwnProperty("recolor") &&
@@ -128,12 +136,12 @@ const addLayerRendering = (images) => {
           ) {
             const newColor =
               images[0].recolor[
-                `${data.data[0]}${data.data[1]}${data.data[2]}`
+              `${data.data[0]}${data.data[1]}${data.data[2]}`
               ];
             skinBuffer.fillStyle = newColor;
-            skinBuffer.fillRect(x, y, 1, 1);
+            skinBuffer.fillRect(x + xOffset, y + yOffset, 1, 1);
           } else {
-            skinBuffer.putImageData(data, x, y);
+            skinBuffer.putImageData(data, x + xOffset, y + yOffset);
           }
         }
       }
@@ -184,17 +192,53 @@ window.storyanvil.logic = {
     if (index == -1) {
       let c = {};
       c[`${color}`] = newColor;
+      let offset = {};
+      offset['-X'] = 0;
+      offset['-Y'] = 0;
+      offset['+X'] = 0;
+      offset['+Y'] = 0;
       window.storyanvil.logic.layers.push({
         id: name,
         recolor: c,
       });
-      addLayerRendering([{ id: name, recolor: {} }]);
+      addLayerRendering([{ id: name, recolor: {}, offset: offset }]);
     } else {
       let c = window.storyanvil.logic.layers[index].recolor;
+      let offset = window.storyanvil.logic.layers[index].offset;
       c[color] = newColor;
       window.storyanvil.logic.layers[index] = {
         id: name,
         recolor: c,
+        offset: offset
+      };
+      window.storyanvil.logic.needsUpdate = true;
+    }
+  },
+  setOffset: (name, axis, offset_) => {
+    const index = window.storyanvil.logic.layers.findIndex((m) => {
+      return m.id == name;
+    });
+
+    if (index == -1) {
+      let offset = {};
+      offset['-X'] = 0;
+      offset['-Y'] = 0;
+      offset['+X'] = 0;
+      offset['+Y'] = 0;
+      offset[axis] = offset_;
+      window.storyanvil.logic.layers.push({
+        id: name,
+        recolor: {},
+        offset: offset
+      });
+      addLayerRendering([{ id: name, recolor: {}, offset: offset }]);
+    } else {
+      let offset = window.storyanvil.logic.layers[index].offset;
+      offset[axis] = offset_;
+      window.storyanvil.logic.layers[index] = {
+        id: name,
+        recolor: window.storyanvil.logic.layers[index].recolor,
+        offset: offset
       };
       window.storyanvil.logic.needsUpdate = true;
     }
@@ -346,8 +390,7 @@ const supportCheck = (tag) => tag === "*" || tag === (slim ? "slim" : "wide");
       ? `const l = document.getElementById('library_variants_${id}');l.style.display=l.style.display=='none'?'flex':'none';`
       : `window.storyanvil.logic.onclick('${id}', '${v}', this)`;
     return `
-      <div class="card${
-        supportCheck(item.support) ? "" : " unsupported"
+      <div class="card${supportCheck(item.support) ? "" : " unsupported"
       }" onclick="${c}">
         <img title="${item.name}" src="templates/preview/${id}${v}.png">
         <div id="library_variants_${id}${v}" class="cardVariants" style="display: none; z-index: 500; position: relative; top: -110%, left: 0%; width: fit-content; outline: 5px solid green; flex-direction: column">
@@ -358,38 +401,42 @@ const supportCheck = (tag) => tag === "*" || tag === (slim ? "slim" : "wide");
   };
   library.all.forEach((id) => {
     const item = library[id];
-
-    if (item.recolor) {
-      let colorEditors = "";
+    if (item.hasOwnProperty("recolor") || item.hasOwnProperty("offset")) {
+      if (!item.hasOwnProperty("recolor")) item.recolor = [];
+      let mixin = "";
       item.recolor.forEach((color) => {
-        colorEditors += `
-        <input type="color" id="colorVariant_${id}_${
-          color[0] + color[1] + color[2]
-        }" value="${rgbToHex(
-          color[0],
-          color[1],
-          color[2]
-        )}" oninput="window.storyanvil.logic.setColored(\`templates/${
-          slim ? "slim" : "wide"
-        }/${id}.png\`, \`${color[0]}${color[1]}${color[2]}\`, this.value);">
+        mixin += `
+        <input type="color" id="colorVariant_${id}_${color[0] + color[1] + color[2]
+          }" value="${rgbToHex(
+            color[0],
+            color[1],
+            color[2]
+          )}" oninput="window.storyanvil.logic.setColored(\`templates/${slim ? "slim" : "wide"
+          }/${id}.png\`, \`${color[0]}${color[1]}${color[2]}\`, this.value);">
         `;
       });
+
+      if (item.offset) {
+        mixin += `
+        <input type="range" id="offsetVariant_${id}" value="${item.offset[1]}" min="${item.offset[1]}" max="${item.offset[2]}" oninput="window.storyanvil.logic.setOffset(\`templates/${slim ? "slim" : "wide"}/${id}.png\`,'${item.offset[0]}', this.value);"
+        `;
+      }
 
       collectionElement[item.category].innerHTML += `
       <div class="card" onclick="const l = document.getElementById('library_variants_${id}');l.style.display=l.style.display=='none'?'flex':'none';">
         <img title="${item.name}" src="templates/preview/${id}.png">
         <div id="library_variants_${id}" class="cardVariants" style="display: none; z-index: 500; position: relative; top: -110%, left: 0%; width: fit-content; outline: 5px solid green; flex-direction: column">
-          ${colorEditors}
-          <button onclick="window.storyanvil.logic.removeLayer('cat')">Remove</button>
+          ${mixin}
+          <br>
+          <button onclick="window.storyanvil.logic.removeLayer('${id}')">Remove</button>
         </div>
       </div>
       `;
     } else {
       if (item.variants.length == 0) {
         collectionElement[item.category].innerHTML += `
-        <div class="card${
-          supportCheck(item.support) ? "" : " unsupported"
-        }" onclick="window.storyanvil.logic.onclick('${id}', '', this)">
+        <div class="card${supportCheck(item.support) ? "" : " unsupported"
+          }" onclick="window.storyanvil.logic.onclick('${id}', '', this)">
           <img title="${item.name}" src="templates/preview/${id}.png">
         </div>
       `;
