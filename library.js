@@ -29,6 +29,7 @@ export const library = {
     "metal_arm",
     "eye2_2",
     "eye4_2",
+    "miners_helmet",
     //"modern_eyeglasses"
   ],
   base: [
@@ -63,6 +64,13 @@ export const library = {
   },
   cool_glasses: {
     name: "Cool Glasses",
+    category: "Head",
+    support: "wide",
+    variants: [],
+    author: "BloodRain121",
+  },
+  miners_helmet: {
+    name: "Miner's Helmet",
     category: "Head",
     support: "wide",
     variants: [],
@@ -123,7 +131,8 @@ export const library = {
     support: "wide",
     variants: [],
     recolor: [
-      ["255", "255", "255"], ["0", "0", "0"],
+      ["255", "255", "255"],
+      ["0", "0", "0"],
     ],
     offset: ["-Y", 0, 2],
     author: "DenisJava",
@@ -134,7 +143,8 @@ export const library = {
     support: "wide",
     variants: [],
     recolor: [
-      ["255", "255", "255"], ["0", "0", "0"],
+      ["255", "255", "255"],
+      ["0", "0", "0"],
     ],
     offset: ["-Y", 0, 2],
     author: "DenisJava",
@@ -145,9 +155,7 @@ export const library = {
     suppor: "wide",
     variants: [],
     offset: ["-Y", 0, 2],
-    recolor: [
-      ["10", "203", "219"]
-    ],
-    author: "DenisJava"
-  }
+    recolor: [["10", "203", "219"]],
+    author: "DenisJava",
+  },
 };
