@@ -25,12 +25,19 @@ const $st = new (class StoryAnvilUtils {
     // Global utils for the skin editor
 
     #gltfLoader = new GLTFLoader();
+    #textureLoader = new THREE.TextureLoader();
 
     async loadModel(url) {
         // Loads gltf model by url
 
         return new Promise((resolve, reject) => {
             this.#gltfLoader.load(url, resolve);
+        });
+    }
+
+    async loadTexture(url) {
+        return new Promise((resolve, reject) => {
+            this.#textureLoader.load(url, resolve);
         });
     }
 })();
@@ -78,6 +85,11 @@ class SkinDisplay {
 
         // Create ResizeObserver to look for canvas size changes
         this.#resizeObserver = new ResizeObserver((entries) => {
+            this.#renderer.setSize(
+                canvas.clientWidth,
+                canvas.clientHeight,
+                false,
+            );
             this.#camera.aspect = canvas.clientWidth / canvas.clientHeight;
             this.#camera.updateProjectionMatrix();
             this.render();
@@ -85,23 +97,45 @@ class SkinDisplay {
         this.#resizeObserver.observe(canvas);
 
         // Create AmbientLight
-        const light = this.#track(new THREE.AmbientLight(0xffffff, 1));
+        const light = this.#track(new THREE.AmbientLight(0xffffff, 2.5));
         this.#scene.add(light);
         this.#camera.position.z = 2;
 
         this.render();
     }
 
-    async setSkin(isSlim) {
+    async setSkin(isSlim, skin) {
+        // Updates skin of this Skin Display
         if (this.#model != null) {
             this.#scene.remove(this.#model);
         }
         this.#model = (
             await $st.loadModel(`./assets/${isSlim ? "slim" : "classic"}.gltf`)
         ).scene;
-        this.#model.rotation.y = 3.141593;
+        this.#model.rotation.y = 3.141593 /* radians */;
         this.#scene.add(this.#model);
+
+        let texture = null;
+        if (typeof skin === "string" || skin instanceof String) {
+            texture = await $st.loadTexture(skin);
+        } else {
+            texture = new THREE.CanvasTexture(skin);
+        }
+        await this.#setTexture(texture);
         this.render();
+    }
+
+    async #setTexture(texture) {
+        // Updates texture of the player model
+        if (this.#model == null) return;
+        this.#model.traverse((c) => {
+            if (!c.material) return;
+            const old = c.material.map.source;
+            if (old.dispose) old.dispose();
+            c.material.map.source = texture.source;
+            c.material.map.needsUpdate = true;
+            c.material.needsUpdate = true;
+        });
     }
 
     #track(resource) {
@@ -146,6 +180,6 @@ function main() {
     }
 
     window._display = new SkinDisplay($elem("skinViewer"));
-    window._display.setSkin(false);
+    window._display.setSkin(true, "./9f4420391882124f.png");
 }
 main();
