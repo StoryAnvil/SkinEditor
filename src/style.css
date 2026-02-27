@@ -1,3 +1,13 @@
-.hello {
-    color: red;
+html,
+body {
+    min-width: 100vw;
+    min-height: 100vh;
+    padding: 0px;
+    margin: 0px;
+}
+.threeCanvasParent {
+    /* Make parents of THREE.JS canvases black, so 
+     * there aren't any white holes when resizing.
+    */
+    background-color: black;
 }

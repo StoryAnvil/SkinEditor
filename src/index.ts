@@ -73,6 +73,7 @@ class SkinDisplay {
         // Create three.js renderer
         this.#renderer = this.#track(new THREE.WebGLRenderer());
         this.#renderer.setSize(parent.clientWidth, parent.clientHeight);
+        parent.classList.add("threeCanvasParent");
         this.#renderer.domElement.classList.add("threeCanvas");
         parent.appendChild(this.#renderer.domElement);
 
@@ -88,6 +89,8 @@ class SkinDisplay {
 
         // Create ResizeObserver to look for canvas size changes
         this.#resizeObserver = new ResizeObserver((entries) => {
+            this.#renderer.domElement.style.width = parent.clientWidth + "px";
+            this.#renderer.domElement.style.height = parent.clientHeight + "px";
             this.#renderer.setSize(
                 parent.clientWidth,
                 parent.clientHeight,
