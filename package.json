@@ -6,7 +6,7 @@
     "type": "module",
     "scripts": {
         "build": "webpack --mode development -c ./webpack.config.ts",
-        "deployment-build": "webpack --mode production -c ./webpack.config.ts",
+        "deployment-build": "node --loader ts-node/esm node_modules/webpack-cli/bin/cli.js --config webpack.config.ts --mode production",
         "start": "webpack server --mode development -c ./webpack.config.ts"
     },
     "keywords": [],
