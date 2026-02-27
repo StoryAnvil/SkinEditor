@@ -1,0 +1,31 @@
+{
+    "name": "skineditor",
+    "version": "1.0.0",
+    "description": "",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "webpack --mode development -c ./webpack.config.ts",
+        "deployment-build": "webpack --mode production -c ./webpack.config.ts",
+        "start": "webpack server --mode development -c ./webpack.config.ts"
+    },
+    "keywords": [],
+    "author": "StoryAnvil",
+    "license": "GPL-3.0-only",
+    "devDependencies": {
+        "@types/node": "^25.3.2",
+        "@types/three": "^0.183.1",
+        "css-loader": "^7.1.4",
+        "html-webpack-plugin": "^5.6.6",
+        "style-loader": "^4.0.0",
+        "ts-loader": "^9.5.4",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.9.3",
+        "webpack": "^5.105.3",
+        "webpack-cli": "^6.0.1",
+        "webpack-dev-server": "^5.2.3"
+    },
+    "dependencies": {
+        "three": "^0.183.1"
+    }
+}

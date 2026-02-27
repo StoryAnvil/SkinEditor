@@ -1,0 +1,185 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema#",
+    "$id": "storyAnvilAccessory",
+    "$anchor": "StoryAnvil",
+    "type": "object",
+    "properties": {
+        "meta": {
+            "description": "Metadata for this accessory. This settings do not affect how accessory is rendered",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "Display name for this accessory",
+                    "type": "string"
+                },
+                "author": {
+                    "description": "Author of authors of this accessory",
+                    "type": "string"
+                },
+                "category": {
+                    "description": "Category of this accessory",
+                    "type": "string",
+                    "enum": [
+                        "hat",
+                        "face",
+                        "hair",
+                        "body",
+                        "arms",
+                        "legs",
+                        "feet"
+                    ]
+                },
+                "tags": {
+                    "description": "Any tags for this accessory. For example \"christmas\" for christmas-themed accessories",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "uniqueItems": true,
+                    "maxItems": 10
+                }
+            },
+            "required": ["name", "author", "category", "tags"]
+        },
+        "inputs": {
+            "description": "Inputs this accessory takes to customize its apearance.",
+            "type": "object",
+            "additionalProperties": {
+                "oneOf": [
+                    {
+                        "description": "Color input",
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "description": "Type of this input",
+                                "type": "string",
+                                "enum": ["color"]
+                            },
+                            "name": {
+                                "description": "Display name for this input",
+                                "type": "string"
+                            },
+                            "default": {
+                                "description": "Hex code of color to use as default value for this input",
+                                "type": "string",
+                                "pattern": "^[0-9ABCDEF]{6}$"
+                            }
+                        },
+                        "required": ["type", "name", "default"]
+                    },
+                    {
+                        "description": "Integer range input",
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "description": "Type of this input",
+                                "type": "string",
+                                "enum": ["intrange"]
+                            },
+                            "name": {
+                                "description": "Display name for this input",
+                                "type": "string"
+                            },
+                            "default": {
+                                "description": "Default value for this input. If not specified minimum value is used",
+                                "type": "integer"
+                            },
+                            "minimum": {
+                                "description": "Minimum value for this input",
+                                "type": "integer"
+                            },
+                            "maximum": {
+                                "description": "Maximum value for this input",
+                                "type": "integer"
+                            }
+                        },
+                        "required": ["type", "name", "minimum", "maximum"]
+                    }
+                ]
+            }
+        },
+        "layers": {
+            "description": "Layers to compose accessory's texture from",
+            "type": "object",
+            "additionalProperties": {
+                "description": "Single accessory layer",
+                "type": "object",
+                "properties": {
+                    "buffer": {
+                        "description": "ID of existing pixel buffer to use for this layer. Pixel buffer must be declared in accessory's buffers object",
+                        "type": "string"
+                    },
+                    "offset": {
+                        "description": "Coordinate offset for this layer (in pixels)",
+                        "type": "array",
+                        "items": [
+                            {
+                                "description": "X offset",
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 64
+                            },
+                            {
+                                "description": "Y offset",
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 64
+                            }
+                        ],
+                        "additionalItems": false,
+                        "minItems": 2,
+                        "default": [0, 0]
+                    },
+                    "enabledByDefault": {
+                        "description": "True of this layer should be enabled by default",
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "required": ["buffer"]
+            }
+        },
+        "buffers": {
+            "description": "Pixel buffers used to draw layers",
+            "type": "object",
+            "additionalProperties": {
+                "description": "Single pixel buffer",
+                "type": "object",
+                "properties": {
+                    "px": {
+                        "description": "Pixel data for this buffer",
+                        "type": "array",
+                        "items": {
+                            "description": "Single pixel",
+                            "type": "array",
+                            "items": [
+                                {
+                                    "description": "X-coordinate of this pixel",
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 64
+                                },
+                                {
+                                    "description": "Y-coordinate of this pixel",
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 64
+                                },
+                                {
+                                    "description": "Hex color code for this pixel",
+                                    "type": "string",
+                                    "pattern": "^[0-9ABCDEF]{6}$"
+                                }
+                            ],
+                            "minItems": 3,
+                            "additionalItems": false
+                        }
+                    }
+                },
+                "required": ["px"]
+            },
+            "minProperties": 1
+        }
+    },
+    "required": ["meta", "layers", "buffers"]
+}

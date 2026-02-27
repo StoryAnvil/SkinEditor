@@ -14,20 +14,22 @@
   You should have received a copy of the GNU General Public License
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
+import "./style.css";
+import SLIM_MODEL from "./models/slim.gltf";
+import CLASSIC_MODEL from "./models/classic.gltf";
+import TestSkin from "./9f4420391882124f.png";
 import * as THREE from "three";
 import {OrbitControls} from "three/addons/controls/OrbitControls.js";
-import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
+import {GLTFLoader, GLTF} from "three/addons/loaders/GLTFLoader.js";
 import WebGL from "three/addons/capabilities/WebGL.js";
 
-const $elem = (e) => document.getElementById(e);
-
-const $st = new (class StoryAnvilUtils {
-    // Global utils for the skin editor
+class AsyncAssetLoader {
+    // Class for managing asset loading using async methods.
 
     #gltfLoader = new GLTFLoader();
     #textureLoader = new THREE.TextureLoader();
 
-    async loadModel(url) {
+    async loadModel(url: string): Promise<GLTF> {
         // Loads gltf model by url
 
         return new Promise((resolve, reject) => {
@@ -35,33 +37,34 @@ const $st = new (class StoryAnvilUtils {
         });
     }
 
-    async loadTexture(url) {
+    async loadTexture(url: string): Promise<THREE.Texture<HTMLImageElement>> {
+        // Loads texture by url
+
         return new Promise((resolve, reject) => {
             this.#textureLoader.load(url, resolve);
         });
     }
-})();
-window.st = $st;
+}
 
 class SkinDisplay {
     // Displays player model in a canvas
 
-    #scene = null;
-    #camera = null;
-    #renderer = null;
-    #controls = null;
-    #resources = null;
-    #resizeObserver = null;
-    #model = null;
+    #scene: THREE.Scene = null;
+    #camera: THREE.PerspectiveCamera = null;
+    #renderer: THREE.WebGLRenderer = null;
+    #controls: OrbitControls = null;
+    #resources: Set<any> = null;
+    #resizeObserver: ResizeObserver = null;
+    #model: any = null;
 
-    constructor(canvas) {
-        // Create three.js scene and camera
+    constructor(parent: HTMLElement) {
+        // Create THREE.JS scene and camera
         this.#resources = new Set();
         this.#scene = this.#track(new THREE.Scene());
         this.#camera = this.#track(
             new THREE.PerspectiveCamera(
                 75,
-                canvas.clientWidth / canvas.clientHeight,
+                parent.clientWidth / parent.clientHeight,
                 0.1,
                 1000,
             ),
@@ -69,9 +72,9 @@ class SkinDisplay {
 
         // Create three.js renderer
         this.#renderer = this.#track(new THREE.WebGLRenderer());
-        this.#renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+        this.#renderer.setSize(parent.clientWidth, parent.clientHeight);
         this.#renderer.domElement.classList.add("threeCanvas");
-        canvas.appendChild(this.#renderer.domElement);
+        parent.appendChild(this.#renderer.domElement);
 
         this.#controls = this.#track(
             new OrbitControls(this.#camera, this.#renderer.domElement),
@@ -86,15 +89,15 @@ class SkinDisplay {
         // Create ResizeObserver to look for canvas size changes
         this.#resizeObserver = new ResizeObserver((entries) => {
             this.#renderer.setSize(
-                canvas.clientWidth,
-                canvas.clientHeight,
+                parent.clientWidth,
+                parent.clientHeight,
                 false,
             );
-            this.#camera.aspect = canvas.clientWidth / canvas.clientHeight;
+            this.#camera.aspect = parent.clientWidth / parent.clientHeight;
             this.#camera.updateProjectionMatrix();
             this.render();
         });
-        this.#resizeObserver.observe(canvas);
+        this.#resizeObserver.observe(parent);
 
         // Create AmbientLight
         const light = this.#track(new THREE.AmbientLight(0xffffff, 2.5));
@@ -104,31 +107,26 @@ class SkinDisplay {
         this.render();
     }
 
-    async setSkin(isSlim, skin) {
+    async setSkin(isSlim: boolean, skin: string | HTMLCanvasElement) {
         // Updates skin of this Skin Display
         if (this.#model != null) {
             this.#scene.remove(this.#model);
         }
         this.#model = (
-            await $st.loadModel(`./assets/${isSlim ? "slim" : "classic"}.gltf`)
+            await $st.loadModel(isSlim ? SLIM_MODEL : CLASSIC_MODEL)
         ).scene;
         this.#model.rotation.y = 3.141593 /* radians */;
         this.#scene.add(this.#model);
 
         let texture = null;
-        if (typeof skin === "string" || skin instanceof String) {
+        if (typeof skin === "string") {
             texture = await $st.loadTexture(skin);
         } else {
             texture = new THREE.CanvasTexture(skin);
         }
-        await this.#setTexture(texture);
-        this.render();
-    }
 
-    async #setTexture(texture) {
-        // Updates texture of the player model
         if (this.#model == null) return;
-        this.#model.traverse((c) => {
+        this.#model.traverse((c: any) => {
             if (!c.material) return;
             const old = c.material.map.source;
             if (old.dispose) old.dispose();
@@ -136,13 +134,15 @@ class SkinDisplay {
             c.material.map.needsUpdate = true;
             c.material.needsUpdate = true;
         });
+
+        this.render();
     }
 
-    #track(resource) {
+    #track<T>(resource: T): T {
         // Adds three.js resource to tracking list.
         // All resources add will be disposed when SkinDisplay's
         // dispose method is called.
-        if (resource.dispose) {
+        if (resource.hasOwnProperty("dispose")) {
             this.#resources.add(resource);
         }
         return resource;
@@ -171,15 +171,23 @@ class SkinDisplay {
     }
 }
 
+const $st = new AsyncAssetLoader();
+
 function main() {
     // Check for WebGL2 support
     if (!WebGL.isWebGL2Available()) {
         const warning = WebGL.getWebGL2ErrorMessage();
-        $elem("body").replaceChildren(warning);
+        document.body.replaceChildren(warning);
         return;
     }
+    const skinViewer = document.createElement("div");
+    skinViewer.id = "skinViewer";
+    skinViewer.style.width = "100vw";
+    skinViewer.style.height = "100vh";
+    document.body.appendChild(skinViewer);
 
-    window._display = new SkinDisplay($elem("skinViewer"));
-    window._display.setSkin(true, "./9f4420391882124f.png");
+    const typelessWindow: any = window;
+    typelessWindow._display = new SkinDisplay(skinViewer);
+    typelessWindow._display.setSkin(true, TestSkin);
 }
 main();
