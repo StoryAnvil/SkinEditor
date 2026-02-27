@@ -17,7 +17,7 @@ export default {
                 exclude: /node_modules/,
             },
             {
-                test: /\.(png|svg|jpg|jpeg|gif|gltf)$/i,
+                test: /\.(png|svg|jpg|jpeg|gif|gltf|json)$/i,
                 type: "asset/resource",
             },
             {

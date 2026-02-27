@@ -62,7 +62,7 @@
                             "default": {
                                 "description": "Hex code of color to use as default value for this input",
                                 "type": "string",
-                                "pattern": "^[0-9ABCDEF]{6}$"
+                                "pattern": "^[0-9ABCDEF]{6}|[0-9ABCDEF]{8}$"
                             }
                         },
                         "required": ["type", "name", "default"]
@@ -148,32 +148,19 @@
                 "properties": {
                     "px": {
                         "description": "Pixel data for this buffer",
-                        "type": "array",
-                        "items": {
-                            "description": "Single pixel",
-                            "type": "array",
-                            "items": [
-                                {
-                                    "description": "X-coordinate of this pixel",
-                                    "type": "integer",
-                                    "minimum": 0,
-                                    "maximum": 64
+                        "type": "object",
+                        "patternProperties": {
+                            "^[0-9ABCDEF]{6}|[0-9ABCDEF]{8}$": {
+                                "description": "Pixels of single color",
+                                "type": "array",
+                                "items": {
+                                    "description": "Sum of Y-coordinate multiplied by 100 and X-coordinate",
+                                    "minimum": 0
                                 },
-                                {
-                                    "description": "Y-coordinate of this pixel",
-                                    "type": "integer",
-                                    "minimum": 0,
-                                    "maximum": 64
-                                },
-                                {
-                                    "description": "Hex color code for this pixel",
-                                    "type": "string",
-                                    "pattern": "^[0-9ABCDEF]{6}$"
-                                }
-                            ],
-                            "minItems": 3,
-                            "additionalItems": false
-                        }
+                                "minItems": 1
+                            }
+                        },
+                        "additionalProperties": false
                     }
                 },
                 "required": ["px"]

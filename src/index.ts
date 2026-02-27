@@ -22,6 +22,8 @@ import * as THREE from "three";
 import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 import {GLTFLoader, GLTF} from "three/addons/loaders/GLTFLoader.js";
 import WebGL from "three/addons/capabilities/WebGL.js";
+import {StLoadedAccessory} from "./accessory";
+import {StMenuBar} from "./ui";
 
 class AsyncAssetLoader {
     // Class for managing asset loading using async methods.
@@ -42,6 +44,15 @@ class AsyncAssetLoader {
 
         return new Promise((resolve, reject) => {
             this.#textureLoader.load(url, resolve);
+        });
+    }
+
+    async loadExternalAccessory(url: string): Promise<StLoadedAccessory> {
+        return new Promise((resolve, reject) => {
+            fetch(url)
+                .then((resp) => resp.json())
+                .then((json) => resolve(new StLoadedAccessory(json)))
+                .catch(reject);
         });
     }
 }
@@ -176,21 +187,66 @@ class SkinDisplay {
 
 const $st = new AsyncAssetLoader();
 
-function main() {
+function setupUI() {
+    // Create MenuBar
+    const menuBar = new StMenuBar();
+    document.body.appendChild(menuBar.domElement);
+
+    const fileMenu = menuBar.createMenu("File");
+    const helpMenu = menuBar.createMenu("Help");
+    fileMenu.addOption("Export", () => {});
+    helpMenu.addLink("GitHub Repo", "https://github.com/StoryAnvil/SkinEditor");
+    helpMenu.addLink(
+        "Report Bugs",
+        "https://github.com/StoryAnvil/SkinEditor/issues",
+    );
+}
+
+async function main() {
     // Check for WebGL2 support
     if (!WebGL.isWebGL2Available()) {
         const warning = WebGL.getWebGL2ErrorMessage();
         document.body.replaceChildren(warning);
         return;
     }
+
+    setupUI();
+
     const skinViewer = document.createElement("div");
     skinViewer.id = "skinViewer";
     skinViewer.style.width = "100vw";
     skinViewer.style.height = "100vh";
     document.body.appendChild(skinViewer);
 
+    //#region TEST
+    const canvasElement = document.createElement("canvas");
+    canvasElement.width = 64;
+    canvasElement.height = 64;
+    canvasElement.style.position = "absolute";
+    canvasElement.style.right = "0px";
+    canvasElement.style.top = "0px";
+    canvasElement.style.width = "128px";
+    canvasElement.style.height = "128px";
+    canvasElement.style.zIndex = "1000";
+    const canvas = canvasElement.getContext("2d");
+    const image = document.createElement("img");
+    image.src = TestSkin;
+
+    await new Promise((resolve, reject) => {
+        image.addEventListener("load", resolve);
+    });
+    canvas.drawImage(image, 0, 0);
+    document.body.appendChild(canvasElement);
+    //#endregion
+
     const typelessWindow: any = window;
     typelessWindow._display = new SkinDisplay(skinViewer);
-    typelessWindow._display.setSkin(true, TestSkin);
+    typelessWindow._display.setSkin(true, canvasElement);
+
+    //#region TEST
+    const accessory = new StLoadedAccessory(require("./accessories/cat.json"));
+    console.log(accessory);
+    //accessory.render(canvas);
+    //#endregion
 }
 main();

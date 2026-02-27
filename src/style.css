@@ -11,3 +11,37 @@ body {
     */
     background-color: black;
 }
+
+.menuBar {
+    /* MenuBar root div */
+    width: 100%;
+    background-color: rgb(32, 32, 32);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+.menuBarBtn {
+    /* MenuBar buttons */
+    background-color: rgb(32, 32, 32);
+    border: none;
+    padding: 3px 5px 3px 5px;
+    border-radius: 0px;
+    color: white;
+    text-align: left;
+}
+.menuBarBtn:hover {
+    background-color: rgb(56, 56, 56);
+}
+.menuBarSectionBtn::after {
+    content: "▶";
+    float: right;
+}
+.menuBarMenu {
+    /* MenuBar submenu div */
+    background-color: rgb(32, 32, 32);
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    position: fixed;
+    min-width: 100px;
+}
