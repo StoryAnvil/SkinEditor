@@ -68,6 +68,30 @@
                         "required": ["type", "name", "default"]
                     },
                     {
+                        "description": "Slim or classic input. Returns true if current skin is slim",
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "description": "Type of this input",
+                                "type": "string",
+                                "enum": ["isSlim"]
+                            }
+                        },
+                        "required": ["type"]
+                    },
+                    {
+                        "description": "Input that returns true",
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "description": "Type of this input",
+                                "type": "string",
+                                "enum": ["always"]
+                            }
+                        },
+                        "required": ["type"]
+                    },
+                    {
                         "description": "Integer range input",
                         "type": "object",
                         "properties": {
@@ -97,6 +121,10 @@
                     }
                 ]
             }
+        },
+        "actions": {
+            "description": "List of actions to apply",
+            "$ref": "#/definitions/actions"
         },
         "layers": {
             "description": "Layers to compose accessory's texture from",
@@ -168,5 +196,137 @@
             "minProperties": 1
         }
     },
-    "required": ["meta", "layers", "buffers"]
+    "required": ["meta", "layers", "buffers"],
+    "definitions": {
+        "actions": {
+            "description": "List of actions this input causes",
+            "type": "array",
+            "items": [
+                {
+                    "oneOf": [
+                        {
+                            "description": "Enable/Disable layers",
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "description": "Type of this action",
+                                    "type": "string",
+                                    "enum": ["setlayer"]
+                                },
+                                "enable": {
+                                    "description": "List of layers to enable",
+                                    "type": "array",
+                                    "items": {
+                                        "description": "Name of layer to enable",
+                                        "type": "string"
+                                    },
+                                    "default": []
+                                },
+                                "disable": {
+                                    "description": "List of layers to disable",
+                                    "type": "array",
+                                    "items": {
+                                        "description": "Name of layer to disable",
+                                        "type": "string"
+                                    },
+                                    "default": []
+                                }
+                            },
+                            "required": ["type"]
+                        },
+                        {
+                            "description": "Set layers offset",
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "description": "Type of this action",
+                                    "type": "string",
+                                    "enum": ["addoffset"]
+                                },
+                                "layers": {
+                                    "description": "ID of layers to add offset for",
+                                    "type": "array",
+                                    "items": {
+                                        "description": "Single layer ID",
+                                        "type": "string"
+                                    }
+                                },
+                                "x_offset": {
+                                    "description": "X Offset value",
+                                    "$ref": "#/definitions/value"
+                                },
+                                "y_offset": {
+                                    "description": "Y Offset value",
+                                    "$ref": "#/definitions/value"
+                                }
+                            },
+                            "required": ["type", "layers"]
+                        },
+                        {
+                            "description": "Execute if",
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "description": "Type of this action",
+                                    "type": "string",
+                                    "enum": ["if"]
+                                },
+                                "condition": {
+                                    "description": "Condition for this if",
+                                    "type": "array",
+                                    "items": [
+                                        {
+                                            "$ref": "#/definitions/value"
+                                        },
+                                        {
+                                            "description": "Operator for values",
+                                            "type": "string",
+                                            "enum": [
+                                                "==",
+                                                "!=",
+                                                ">",
+                                                "<",
+                                                ">=",
+                                                "<="
+                                            ]
+                                        },
+                                        {
+                                            "$ref": "#/definitions/value"
+                                        }
+                                    ]
+                                },
+                                "actions": {
+                                    "description": "Actions to execute if condition resulted in positive value",
+                                    "$ref": "#/definitions/actions"
+                                }
+                            },
+                            "required": ["type"]
+                        }
+                    ]
+                }
+            ]
+        },
+        "value": {
+            "oneOf": [
+                {"description": "Literal Value", "type": "boolean"},
+                {"description": "Literal Value", "type": "number"},
+                {"description": "Literal Value", "type": "string"},
+                {
+                    "description": "Expression Value (get input value)",
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "description": "Expression type",
+                            "enum": ["input"]
+                        },
+                        "input": {
+                            "description": "ID of input to take value from",
+                            "type": "string"
+                        }
+                    },
+                    "required": ["type", "input"]
+                }
+            ]
+        }
+    }
 }

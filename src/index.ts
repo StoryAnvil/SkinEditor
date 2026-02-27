@@ -22,8 +22,9 @@ import * as THREE from "three";
 import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 import {GLTFLoader, GLTF} from "three/addons/loaders/GLTFLoader.js";
 import WebGL from "three/addons/capabilities/WebGL.js";
-import {StLoadedAccessory} from "./accessory";
-import {StMenuBar} from "./ui";
+import {StLoadedAccessory, StOutfitBuilder} from "./accessory";
+import {StMenuBar} from "./menuBar";
+import {StCatalog} from "./catalog";
 
 class AsyncAssetLoader {
     // Class for managing asset loading using async methods.
@@ -55,6 +56,20 @@ class AsyncAssetLoader {
                 .catch(reject);
         });
     }
+
+    async loadBundledAccessory(data: any): Promise<StLoadedAccessory> {
+        if (data instanceof StLoadedAccessory) {
+            return new Promise((resolve, reject) => {
+                resolve(data);
+            });
+        }
+        if (typeof data === "string") {
+            return this.loadExternalAccessory(data);
+        }
+        return new Promise((resolve, reject) => {
+            resolve(new StLoadedAccessory(data));
+        });
+    }
 }
 
 class SkinDisplay {
@@ -67,6 +82,7 @@ class SkinDisplay {
     #resources: Set<any> = null;
     #resizeObserver: ResizeObserver = null;
     #model: any = null;
+    #light: THREE.AmbientLight;
 
     constructor(parent: HTMLElement) {
         // Create THREE.JS scene and camera
@@ -114,8 +130,8 @@ class SkinDisplay {
         this.#resizeObserver.observe(parent);
 
         // Create AmbientLight
-        const light = this.#track(new THREE.AmbientLight(0xffffff, 2.5));
-        this.#scene.add(light);
+        this.#light = this.#track(new THREE.AmbientLight(0xffffff, 2.5));
+        this.#scene.add(this.#light);
         this.#camera.position.z = 2;
 
         this.render();
@@ -124,14 +140,18 @@ class SkinDisplay {
     async setSkin(isSlim: boolean, skin: string | HTMLCanvasElement) {
         // Updates skin of this Skin Display
         if (this.#model != null) {
-            this.#scene.remove(this.#model);
+            this.#scene.clear();
+            this.#scene.add(this.#light);
         }
         this.#model = (
             await $st.loadModel(isSlim ? SLIM_MODEL : CLASSIC_MODEL)
         ).scene;
         this.#model.rotation.y = 3.141593 /* radians */;
         this.#scene.add(this.#model);
+        this.updateTexture(skin);
+    }
 
+    async updateTexture(skin: string | HTMLCanvasElement) {
         let texture = null;
         if (typeof skin === "string") {
             texture = await $st.loadTexture(skin);
@@ -188,7 +208,7 @@ class SkinDisplay {
 const $st = new AsyncAssetLoader();
 
 function setupUI() {
-    // Create MenuBar
+    //#region MenuBar
     const menuBar = new StMenuBar();
     document.body.appendChild(menuBar.domElement);
 
@@ -200,6 +220,51 @@ function setupUI() {
         "Report Bugs",
         "https://github.com/StoryAnvil/SkinEditor/issues",
     );
+    //#endregion
+
+    const root = document.createElement("div");
+    root.id = "root";
+    document.body.appendChild(root);
+
+    const skinViewer = document.createElement("div");
+    const skinDisplay = new SkinDisplay(skinViewer);
+    const outfitBuilder = new StOutfitBuilder(
+        "cog",
+        () => {
+            skinDisplay.updateTexture(outfitBuilder.resultCanvas);
+            // WebGL warning: texStorage(Multisample)?: Specified texture is immutable.
+            // PLEASE FIX LATER!
+        },
+        () => {
+            skinDisplay.setSkin(
+                outfitBuilder.isSlim,
+                outfitBuilder.resultCanvas,
+            );
+            skinDisplay.render();
+        },
+    );
+
+    //#region Catalog
+    const catalog: StCatalog = new StCatalog(outfitBuilder);
+    root.appendChild(catalog.domElement);
+    //#endregion
+
+    //#region Skin viewer
+    skinViewer.style.flexGrow = "1";
+    root.appendChild(skinViewer);
+
+    skinDisplay.setSkin(outfitBuilder.isSlim, outfitBuilder.resultCanvas);
+
+    outfitBuilder.resultCanvas.style.position = "absolute";
+    outfitBuilder.resultCanvas.style.top = "15px";
+    outfitBuilder.resultCanvas.style.right = "15px";
+    outfitBuilder.resultCanvas.style.width = "64px";
+    outfitBuilder.resultCanvas.style.height = "64px";
+    document.body.appendChild(outfitBuilder.resultCanvas);
+
+    const typelessWindow: any = window;
+    typelessWindow._outfitBuild = outfitBuilder;
+    //#endregion
 }
 
 async function main() {
@@ -211,6 +276,7 @@ async function main() {
     }
 
     setupUI();
+    return;
 
     const skinViewer = document.createElement("div");
     skinViewer.id = "skinViewer";
@@ -244,7 +310,9 @@ async function main() {
     typelessWindow._display.setSkin(true, canvasElement);
 
     //#region TEST
-    const accessory = new StLoadedAccessory(require("./accessories/cat.json"));
+    const accessory = await $st.loadBundledAccessory(
+        require("./accessories/cat.json"),
+    );
     console.log(accessory);
     //accessory.render(canvas);
     //#endregion

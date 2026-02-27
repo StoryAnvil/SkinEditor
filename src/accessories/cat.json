@@ -6,6 +6,24 @@
         "category": "face",
         "tags": []
     },
+    "inputs": {
+        "i0": {
+            "type": "intrange",
+            "name": "Height",
+            "minimum": 0,
+            "maximum": 10
+        }
+    },
+    "actions": [
+        {
+            "type": "addoffset",
+            "layers": ["l0"],
+            "y_offset": {
+                "type": "input",
+                "input": "i0"
+            }
+        }
+    ],
     "layers": {
         "l0": {
             "buffer": "b0",
