@@ -54,8 +54,8 @@ export class StMenu {
     #open() {
         let {top, right, bottom, left} =
             this.domButtonElement.getBoundingClientRect();
-        left += window.screenX;
-        top += window.screenY;
+        //left += window.screenX;
+        //top += window.screenY;
         if (this.subMenu) {
             this.domElement.style.top = top + "px";
             this.domElement.style.left = right + "px";
@@ -94,6 +94,13 @@ export class StMenu {
             open(link);
             this.#close();
         };
+        return this;
+    }
+
+    addSeparator(): StMenu {
+        const separator: HTMLElement = document.createElement("hr");
+        separator.classList.add("menuBarSep");
+        this.domElement.appendChild(separator);
         return this;
     }
 

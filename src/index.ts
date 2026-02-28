@@ -25,6 +25,7 @@ import WebGL from "three/addons/capabilities/WebGL.js";
 import {StLoadedAccessory, StOutfitBuilder} from "./accessory";
 import {StMenuBar} from "./menuBar";
 import {StCatalog} from "./catalog";
+import * as DEVTOOLS from "./devtools";
 
 class AsyncAssetLoader {
     // Class for managing asset loading using async methods.
@@ -208,22 +209,37 @@ class SkinDisplay {
 const $st = new AsyncAssetLoader();
 
 function setupUI() {
+    const root = document.createElement("div");
+    root.id = "root";
+    const typelessWindow: any = window;
+
     //#region MenuBar
     const menuBar = new StMenuBar();
     document.body.appendChild(menuBar.domElement);
 
     const fileMenu = menuBar.createMenu("File");
     const helpMenu = menuBar.createMenu("Help");
+    const devMenu = menuBar.createMenu("DevTools");
     fileMenu.addOption("Export", () => {});
+
     helpMenu.addLink("GitHub Repo", "https://github.com/StoryAnvil/SkinEditor");
     helpMenu.addLink(
         "Report Bugs",
         "https://github.com/StoryAnvil/SkinEditor/issues",
     );
+
+    devMenu.addOption("⚠️ This section is for developers only!", () => {});
+    devMenu.addOption(
+        "⚠️ You can break your skin with this options!!",
+        () => {},
+    );
+    devMenu.addSeparator();
+    devMenu.addOption("Reload", () => window.location.reload());
+    devMenu.addOption("Image to Pixel Buffer converter", () =>
+        DEVTOOLS.openImageConverter(root),
+    );
     //#endregion
 
-    const root = document.createElement("div");
-    root.id = "root";
     document.body.appendChild(root);
 
     const skinViewer = document.createElement("div");
@@ -262,8 +278,8 @@ function setupUI() {
     outfitBuilder.resultCanvas.style.height = "64px";
     document.body.appendChild(outfitBuilder.resultCanvas);
 
-    const typelessWindow: any = window;
-    typelessWindow._outfitBuild = outfitBuilder;
+    typelessWindow._outfitBuilder = outfitBuilder;
+    typelessWindow._skinDisplay = skinDisplay;
     //#endregion
 }
 

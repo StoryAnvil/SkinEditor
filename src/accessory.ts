@@ -19,10 +19,14 @@ import {loadAction, loadActionArray, StAction} from "./accessoryActions";
 import {loadInput, StAccessoryInput} from "./accessoryInputs";
 
 function hexIntoData(hexCode: string, data: ImageData) {
-    data.data[0] = parseInt(hexCode.substring(1, 3), 16);
-    data.data[1] = parseInt(hexCode.substring(3, 5), 16);
-    data.data[2] = parseInt(hexCode.substring(5, 7), 16);
-    data.data[3] = parseInt(hexCode.substring(7, 9), 16);
+    data.data[0] = parseInt(hexCode.substring(0, 2), 16);
+    data.data[1] = parseInt(hexCode.substring(2, 4), 16);
+    data.data[2] = parseInt(hexCode.substring(4, 6), 16);
+    if (hexCode.length == 8) {
+        data.data[3] = parseInt(hexCode.substring(6, 8), 16);
+    } else {
+        data.data[3] = 255;
+    }
 }
 
 export type Str2<T> = {

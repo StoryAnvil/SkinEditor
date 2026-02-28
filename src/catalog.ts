@@ -121,8 +121,8 @@ export class StCatalog {
         cfg.onclick = () => {
             if (config.style.display == "none") {
                 let {top, right, bottom, left} = root.getBoundingClientRect();
-                left += window.screenX;
-                top += window.screenY;
+                //left += window.screenX;
+                //top += window.screenY;
                 config.style.top = top + "px";
                 config.style.left = right + "px";
                 config.style.display = "flex";
