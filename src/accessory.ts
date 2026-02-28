@@ -17,6 +17,7 @@
 
 import {loadAction, loadActionArray, StAction} from "./accessoryActions";
 import {loadInput, StAccessoryInput} from "./accessoryInputs";
+import {StColorMod, StNOPColorMod, StTintColorMod} from "./colorMods";
 
 function hexIntoData(hexCode: string, data: ImageData) {
     data.data[0] = parseInt(hexCode.substring(0, 2), 16);
@@ -60,6 +61,7 @@ export class StLayer {
 
     enabledNow: boolean = false;
     offsetNow: number = 0;
+    tintNow: string = null;
 
     constructor(json: any, buffers: Str2<StPixelBuffer>) {
         /**
@@ -77,19 +79,37 @@ export class StLayer {
         }
     }
 
-    render(canvas: CanvasRenderingContext2D, imageData: ImageData) {
+    render(
+        canvas: CanvasRenderingContext2D,
+        imageData: ImageData,
+        accessory: StLoadedAccessory,
+    ) {
         if (!this.enabledNow) return;
-        for (const color of Object.keys(this.buffer.pixels)) {
-            if (color.length == 6) {
+
+        let colorMod: StColorMod;
+        if (this.tintNow == null || this.tintNow === "FFFFFF") {
+            colorMod = new StNOPColorMod();
+        } else {
+            colorMod = new StTintColorMod(this.tintNow);
+        }
+
+        for (let color of Object.keys(this.buffer.pixels)) {
+            const _color = color;
+            if (color.startsWith("#")) {
+                color = accessory.inputValues[color.substring(1)];
+            }
+            color = colorMod.process(color);
+
+            if (color.length == 6 || !color.endsWith("00")) {
                 canvas.fillStyle = "#" + color;
 
-                for (const bufPos of this.buffer.pixels[color]) {
+                for (const bufPos of this.buffer.pixels[_color]) {
                     let pos = bufPos + this.offsetNow;
                     canvas.fillRect(pos % 100, Math.floor(pos / 100), 1, 1);
                 }
             } else {
                 hexIntoData(color, imageData);
-                for (const bufPos of this.buffer.pixels[color]) {
+                for (const bufPos of this.buffer.pixels[_color]) {
                     let pos = bufPos + this.offsetNow;
                     canvas.putImageData(
                         imageData,
@@ -158,7 +178,6 @@ export class StLoadedAccessory {
             author.innerText = "By " + this.#author;
             panel.appendChild(author);
         }
-        panel.appendChild(document.createElement("hr"));
 
         for (const inputID of Object.keys(this.#inputs)) {
             this.#inputs[inputID].createCfgPanel(panel, builder, this);
@@ -178,6 +197,7 @@ export class StLoadedAccessory {
             const layer = this.#layers[layerID];
             layer.enabledNow = layer.enabledByDefault;
             layer.offsetNow = layer.offset;
+            layer.tintNow = null;
         }
         console.log(this.inputValues);
         for (const action of this.#actions) {
@@ -186,7 +206,7 @@ export class StLoadedAccessory {
 
         const imageData = canvas.createImageData(1, 1);
         for (const layerID of Object.keys(this.#layers)) {
-            this.#layers[layerID].render(canvas, imageData);
+            this.#layers[layerID].render(canvas, imageData, this);
         }
     }
 }
@@ -268,7 +288,9 @@ export class StOutfitBuilder {
         );
         this.#canvas.drawImage(this.#baseTexture, 0, 0);
 
+        console.log("Started rerender!");
         for (const accesory of this.#accessories) {
+            console.log("Rendering", accesory);
             accesory.render(this.#canvas, this);
         }
 
@@ -327,14 +349,7 @@ export class StOutfitBuilder {
     async removeAccessory(id: string, configPanel: HTMLDivElement) {
         // Removes accessory by id
         this.#accessoryIds.delete(id);
-        for (let i = 0; i < this.#accessories.length; i++) {
-            const element = this.#accessories[i];
-            if (element.assignedId == id) {
-                i--;
-                this.#accessories.splice(i, 1);
-                break;
-            }
-        }
+        this.#accessories = this.#accessories.filter((e) => e.assignedId != id);
         console.log("Removed " + id);
         configPanel.replaceChildren();
         this.#fullRerender();

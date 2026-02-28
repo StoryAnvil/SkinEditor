@@ -35,7 +35,7 @@ export interface StValue {
     getValue(builder: StOutfitBuilder, accesory: StLoadedAccessory): any;
 }
 
-class LiteralValue implements StValue {
+export class LiteralValue implements StValue {
     #value: any;
     constructor(value: any) {
         this.#value = value;
@@ -146,15 +146,23 @@ class AddOffsetAction implements StAction {
         }
     }
 }
-
 class SetTintAction implements StAction {
-    constructor(json: any, accessory: StLoadedAccessory) {}
+    #layers: string[];
+    #tint: StValue;
+
+    constructor(json: any, accessory: StLoadedAccessory) {
+        this.#layers = json.layers;
+        this.#tint = loadValue(json.tint, accessory);
+    }
     apply(
         builder: StOutfitBuilder,
         accesory: StLoadedAccessory,
         layers: Str2<StLayer>,
     ): void {
-        throw new Error("Method not implemented.");
+        const value = this.#tint.getValue(builder, accesory);
+        for (const layer of this.#layers) {
+            layers[layer].tintNow = value;
+        }
     }
 }
 

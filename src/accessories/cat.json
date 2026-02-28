@@ -7,23 +7,17 @@
         "tags": []
     },
     "inputs": {
-        "i0": {
-            "type": "intrange",
-            "name": "Height",
-            "minimum": 0,
-            "maximum": 10
+        "c0": {
+            "type": "color",
+            "name": "Outside color",
+            "default": "FFFFFF"
+        },
+        "c1": {
+            "type": "color",
+            "name": "Inside color",
+            "default": "F6C7D4"
         }
     },
-    "actions": [
-        {
-            "type": "addoffset",
-            "layers": ["l0"],
-            "y_offset": {
-                "type": "input",
-                "input": "i0"
-            }
-        }
-    ],
     "layers": {
         "l0": {
             "buffer": "b0",
@@ -33,12 +27,12 @@
     "buffers": {
         "b0": {
             "px": {
-                "FFFFFF": [
+                "#c0": [
                     708, 709, 714, 715, 807, 808, 809, 814, 815, 816, 907, 908,
                     910, 913, 915, 916, 1007, 1008, 1015, 1016, 741, 746, 841,
                     846, 939, 940, 942, 945, 947, 948, 1039, 1040, 1047, 1048
                 ],
-                "F6C7D4": [909, 914, 1009, 1014, 1041, 1046],
+                "#c1": [909, 914, 1009, 1014, 1041, 1046],
                 "00000000": [941, 946]
             }
         }

@@ -60,9 +60,14 @@
                                 "type": "string"
                             },
                             "default": {
-                                "description": "Hex code of color to use as default value for this input",
+                                "description": "Hex code of color to use as default value for this input. Alpha channel is not currently supported",
                                 "type": "string",
-                                "pattern": "^[0-9ABCDEF]{6}|[0-9ABCDEF]{8}$"
+                                "pattern": "^[0-9ABCDEF]{6}$"
+                            },
+                            "alpha": {
+                                "description": "Alpha value",
+                                "$ref": "#/definitions/value",
+                                "default": 255
                             }
                         },
                         "required": ["type", "name", "default"]
@@ -179,13 +184,11 @@
                         "type": "object",
                         "patternProperties": {
                             "^[0-9ABCDEF]{6}|[0-9ABCDEF]{8}$": {
-                                "description": "Pixels of single color",
-                                "type": "array",
-                                "items": {
-                                    "description": "Sum of Y-coordinate multiplied by 100 and X-coordinate",
-                                    "minimum": 0
-                                },
-                                "minItems": 1
+                                "$ref": "#/definitions/pixelPosArray"
+                            },
+                            "^#": {
+                                "description": "Use color from input with ID specified after #",
+                                "$ref": "#/definitions/pixelPosArray"
                             }
                         },
                         "additionalProperties": false
@@ -198,6 +201,15 @@
     },
     "required": ["meta", "layers", "buffers"],
     "definitions": {
+        "pixelPosArray": {
+            "description": "Pixels of single color",
+            "type": "array",
+            "items": {
+                "description": "Sum of Y-coordinate multiplied by 100 and X-coordinate",
+                "minimum": 0
+            },
+            "minItems": 1
+        },
         "actions": {
             "description": "List of actions this input causes",
             "type": "array",
@@ -257,6 +269,30 @@
                                 },
                                 "y_offset": {
                                     "description": "Y Offset value",
+                                    "$ref": "#/definitions/value"
+                                }
+                            },
+                            "required": ["type", "layers"]
+                        },
+                        {
+                            "description": "Set layers tint",
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "description": "Type of this action",
+                                    "type": "string",
+                                    "enum": ["settint"]
+                                },
+                                "layers": {
+                                    "description": "ID of layers to set tint for",
+                                    "type": "array",
+                                    "items": {
+                                        "description": "Single layer ID",
+                                        "type": "string"
+                                    }
+                                },
+                                "tint": {
+                                    "description": "Tint color (HEX)",
                                     "$ref": "#/definitions/value"
                                 }
                             },

@@ -87,7 +87,7 @@ export function openImageConverter(root: HTMLElement) {
         const layer = new StLayer({buffer: "l"}, {l: deserialized});
         layer.enabledNow = true;
         setTimeout(() => {
-            layer.render(ctx2, ctx2.createImageData(1, 1));
+            layer.render(ctx2, ctx2.createImageData(1, 1), null);
             console.log("Following layer rendered:");
             console.log(layer);
         }, 150);

@@ -26,6 +26,7 @@ import {StLoadedAccessory, StOutfitBuilder} from "./accessory";
 import {StMenuBar} from "./menuBar";
 import {StCatalog} from "./catalog";
 import * as DEVTOOLS from "./devtools";
+import {debounce} from "lodash";
 
 class AsyncAssetLoader {
     // Class for managing asset loading using async methods.
@@ -116,18 +117,23 @@ class SkinDisplay {
         this.#controls.addEventListener("change", () => this.render());
 
         // Create ResizeObserver to look for canvas size changes
-        this.#resizeObserver = new ResizeObserver((entries) => {
-            this.#renderer.domElement.style.width = parent.clientWidth + "px";
-            this.#renderer.domElement.style.height = parent.clientHeight + "px";
-            this.#renderer.setSize(
-                parent.clientWidth,
-                parent.clientHeight,
-                false,
-            );
-            this.#camera.aspect = parent.clientWidth / parent.clientHeight;
-            this.#camera.updateProjectionMatrix();
-            this.render();
-        });
+        this.#resizeObserver = new ResizeObserver(
+            debounce((entries) => {
+                if (entries.length <= 0) return;
+                this.#renderer.domElement.style.width =
+                    parent.clientWidth + "px";
+                this.#renderer.domElement.style.height =
+                    parent.clientHeight + "px";
+                this.#renderer.setSize(
+                    parent.clientWidth,
+                    parent.clientHeight,
+                    true,
+                );
+                this.#camera.aspect = parent.clientWidth / parent.clientHeight;
+                this.#camera.updateProjectionMatrix();
+                this.render();
+            }),
+        );
         this.#resizeObserver.observe(parent);
 
         // Create AmbientLight

@@ -45,12 +45,36 @@ const catalogMap: StCatalogMap & Str2<StCatalogEntry[]> = {
             require("./accessories/cat.json"),
         ),
     ],
-    face: [],
+    face: [
+        new StCatalogEntry(
+            "cool_glasses",
+            require("./accessories/cool_glasses.png"),
+            require("./accessories/cool_glasses.json"),
+        ),
+    ],
     hair: [],
-    body: [],
+    body: [
+        new StCatalogEntry(
+            "tshirt",
+            require("./accessories/tshirt.png"),
+            require("./accessories/tshirt.json"),
+        ),
+    ],
     arms: [],
-    legs: [],
-    feet: [],
+    legs: [
+        new StCatalogEntry(
+            "pants",
+            require("./accessories/pants.png"),
+            require("./accessories/pants.json"),
+        ),
+    ],
+    feet: [
+        new StCatalogEntry(
+            "boots",
+            require("./accessories/boots.png"),
+            require("./accessories/boots.json"),
+        ),
+    ],
 };
 
 export class StCatalog {

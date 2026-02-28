@@ -1,0 +1,60 @@
+{
+    "$schema": "../schema/stAccessory.json",
+    "meta": {
+        "name": "Cool Glasses",
+        "author": "BloodRain121",
+        "category": "face",
+        "tags": []
+    },
+    "inputs": {
+        "left": {
+            "type": "color",
+            "default": "FE0028",
+            "name": "Left Lens",
+            "alpha": 150
+        },
+        "right": {
+            "type": "color",
+            "default": "0081FE",
+            "name": "Right Lens",
+            "alpha": 150
+        },
+        "height": {
+            "type": "intrange",
+            "name": "Eye Height",
+            "minimum": -3,
+            "maximum": 1,
+            "default": -1
+        }
+    },
+    "actions": [
+        {
+            "type": "addoffset",
+            "layers": ["l0"],
+            "y_offset": {
+                "type": "input",
+                "input": "height"
+            }
+        }
+    ],
+    "layers": {
+        "l0": {
+            "buffer": "b0",
+            "enabledByDefault": true
+        }
+    },
+    "buffers": {
+        "b0": {
+            "px": {
+                "303030": [
+                    1335, 1238, 1339, 1340, 1241, 1344, 1246, 1347, 1348, 1249,
+                    1352
+                ],
+                "3E3E3E": [1236, 1237, 1242, 1243, 1244, 1245, 1250, 1251],
+                "1F1F1F": [1239, 1240, 1343, 1247, 1248],
+                "#left": [1341, 1342],
+                "#right": [1345, 1346]
+            }
+        }
+    }
+}

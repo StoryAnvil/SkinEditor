@@ -13,6 +13,7 @@
     "author": "StoryAnvil",
     "license": "GPL-3.0-only",
     "devDependencies": {
+        "@types/lodash": "^4.17.24",
         "@types/node": "^25.3.2",
         "@types/three": "^0.183.1",
         "css-loader": "^7.1.4",
@@ -26,6 +27,7 @@
         "webpack-dev-server": "^5.2.3"
     },
     "dependencies": {
+        "lodash": "^4.17.23",
         "three": "^0.183.1"
     }
 }
