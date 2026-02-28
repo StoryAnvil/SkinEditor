@@ -149,6 +149,17 @@ export class StLoadedAccessory {
     }
 
     createCfgPanel(panel: HTMLDivElement, builder: StOutfitBuilder) {
+        const name = document.createElement("h4");
+        name.innerText = this.#name;
+        panel.appendChild(name);
+        if (this.#author != "") {
+            const author = document.createElement("p");
+            author.classList.add("authorLabel");
+            author.innerText = "By " + this.#author;
+            panel.appendChild(author);
+        }
+        panel.appendChild(document.createElement("hr"));
+
         for (const inputID of Object.keys(this.#inputs)) {
             this.#inputs[inputID].createCfgPanel(panel, builder, this);
         }
@@ -278,6 +289,8 @@ export class StOutfitBuilder {
                 this.#baseTexture = value;
                 this.#baseTextureName = null;
             }
+            this.#fullRerender();
+            this.hardRerenderTarget();
 
             resolve(null);
         });
@@ -293,6 +306,7 @@ export class StOutfitBuilder {
             this.setBaseTexture(this.#baseTextureName).then(() => {
                 this.#fullRerender();
                 this.hardRerenderTarget();
+                this.renderTarget();
             });
         }
     }

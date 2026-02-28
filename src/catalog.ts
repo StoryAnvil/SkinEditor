@@ -41,7 +41,7 @@ const catalogMap: StCatalogMap & Str2<StCatalogEntry[]> = {
     hat: [
         new StCatalogEntry(
             "cat",
-            require("./9f4420391882124f.png"),
+            require("./accessories/cat.png"),
             require("./accessories/cat.json"),
         ),
     ],
@@ -70,26 +70,123 @@ export class StCatalog {
         this.#sectionsRoot.classList.add("catalogSectionsRoot");
         this.domElement.appendChild(this.#sectionsRoot);
 
-        const createEntryRoot = (name: string) => {
+        const createEntryRoot = (name: string, displayName: string) => {
+            const wrapper = document.createElement("div");
+            wrapper.classList.add("catalogSectionWrapper");
+
             const root = document.createElement("div");
             root.classList.add("catalogSection");
-            this.#sectionsRoot.appendChild(root);
+
+            const header = document.createElement("h3");
+            header.innerText = displayName;
+
+            wrapper.appendChild(header);
+            wrapper.appendChild(root);
+            this.#sectionsRoot.appendChild(wrapper);
             this.#sections[name] = root;
+            return wrapper;
         };
 
-        createEntryRoot("hat");
-        createEntryRoot("face");
-        createEntryRoot("hair");
-        createEntryRoot("body");
-        createEntryRoot("arms");
-        createEntryRoot("legs");
-        createEntryRoot("feet");
+        createEntryRoot("bases", "Skin base");
+        createEntryRoot("hair", "Hair");
+        createEntryRoot("hat", "Hat");
+        createEntryRoot("face", "Face");
+        createEntryRoot("body", "Body");
+        createEntryRoot("arms", "Arms");
+        createEntryRoot("legs", "Legs");
+        createEntryRoot("feet", "Feet");
 
         for (const section of Object.keys(catalogMap)) {
             for (const entry of catalogMap[section]) {
                 this.addEntry(entry, section);
             }
         }
+
+        const customSkinInput = document.createElement("input");
+        customSkinInput.style.position = "absolute";
+        customSkinInput.style.top = "0px";
+        customSkinInput.style.bottom = "0px";
+        customSkinInput.style.left = "0px";
+        customSkinInput.style.right = "0px";
+        customSkinInput.style.opacity = "0";
+        customSkinInput.type = "file";
+        customSkinInput.accept = ".png";
+        customSkinInput.onchange = () => {
+            if (customSkinInput.files.length !== 1) return;
+            const img = document.createElement("img");
+            img.width = 64;
+            img.height = 64;
+            img.addEventListener("load", async () => {
+                const typelessWindow: any = window;
+                const builder: StOutfitBuilder = typelessWindow._outfitBuilder;
+                await builder.setBaseTexture(img);
+                typelessWindow._lastIMG = img;
+            });
+            img.src = URL.createObjectURL(customSkinInput.files[0]);
+        };
+
+        // prettier-ignore
+        const customSkinRoot = this.addSkinBaseEntry(null, require("./bases/custom.png"),);
+        customSkinRoot.appendChild(customSkinInput);
+        customSkinRoot.style.position = "relative";
+
+        this.addSkinBaseEntry("#cog", require("./bases/cog.png"));
+    }
+
+    addSkinBaseEntry(
+        supplier: string | (() => Promise<string>) | null,
+        imageSrc: string,
+    ) {
+        const root = document.createElement("div");
+        root.classList.add("catalogEntry");
+        const entryID = this.#entries.length;
+        root.setAttribute("data-entry", entryID + "");
+
+        const image = document.createElement("img");
+        image.classList.add("catalogEntryPreview");
+        image.src = imageSrc;
+        root.appendChild(image);
+
+        if (supplier == null) {
+        } else if (typeof supplier === "string") {
+            let sup: string = supplier;
+            if (supplier.startsWith("#")) {
+                sup = supplier.substring(1);
+                root.onclick = () => {
+                    const typelessWindow: any = window;
+                    const builder: StOutfitBuilder =
+                        typelessWindow._outfitBuilder;
+                    builder.setBaseTexture(sup);
+                };
+            } else {
+                root.onclick = async () => {
+                    const img = document.createElement("img");
+                    img.src = sup;
+                    await new Promise((resolve, reject) => {
+                        img.addEventListener("load", resolve);
+                    });
+                    const typelessWindow: any = window;
+                    const builder: StOutfitBuilder =
+                        typelessWindow._outfitBuilder;
+                    builder.setBaseTexture(img);
+                };
+            }
+        } else {
+            const sup: () => Promise<string> = supplier;
+            root.onclick = async () => {
+                const img = document.createElement("img");
+                img.src = await sup();
+                await new Promise((resolve, reject) => {
+                    img.addEventListener("load", resolve);
+                });
+                const typelessWindow: any = window;
+                const builder: StOutfitBuilder = typelessWindow._outfitBuilder;
+                builder.setBaseTexture(img);
+            };
+        }
+
+        this.#sections["bases"].appendChild(root);
+        return root;
     }
 
     addEntry(entry: StCatalogEntry, section: string) {

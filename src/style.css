@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap");
+
 html,
 body {
     min-width: 100vw;
@@ -9,6 +11,17 @@ body {
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
+    font-family: "Rubik", sans-serif;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+    margin: 0px;
+    color: white;
 }
 .threeCanvasParent {
     /* Make parents of THREE.JS canvases black, so 
@@ -22,6 +35,7 @@ body {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
+    position: relative;
 }
 
 /* #region MenuBar */
@@ -77,6 +91,12 @@ body {
     flex-direction: row;
     flex-wrap: wrap;
 }
+.catalogSectionWrapper {
+    /* Catalog section div element wrapper */
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
 .catalogEntry {
     position: relative;
     background-color: rgb(12, 12, 12);
@@ -104,5 +124,8 @@ body {
 .catalogEntryCfgLabel {
     margin: 0px;
     color: white;
+}
+.authorLabel {
+    color: rgb(116, 116, 116);
 }
 /* #endregion */

@@ -276,7 +276,7 @@ function setupUI() {
     outfitBuilder.resultCanvas.style.right = "15px";
     outfitBuilder.resultCanvas.style.width = "64px";
     outfitBuilder.resultCanvas.style.height = "64px";
-    document.body.appendChild(outfitBuilder.resultCanvas);
+    root.appendChild(outfitBuilder.resultCanvas);
 
     typelessWindow._outfitBuilder = outfitBuilder;
     typelessWindow._skinDisplay = skinDisplay;
