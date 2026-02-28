@@ -220,7 +220,12 @@ function setupUI() {
     const fileMenu = menuBar.createMenu("File");
     const helpMenu = menuBar.createMenu("Help");
     const devMenu = menuBar.createMenu("DevTools");
-    fileMenu.addOption("Export", () => {});
+    fileMenu.addOption("Export", () => {
+        const link = document.createElement("a");
+        link.download = "skin.png";
+        link.href = typelessWindow._outfitBuilder.resultCanvas.toDataURL();
+        link.click();
+    });
 
     helpMenu.addLink("GitHub Repo", "https://github.com/StoryAnvil/SkinEditor");
     helpMenu.addLink(

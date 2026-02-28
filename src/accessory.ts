@@ -302,13 +302,15 @@ export class StOutfitBuilder {
 
     set isSlim(value: boolean) {
         this.#isSlim = value;
-        if (this.#baseTextureName != null) {
-            this.setBaseTexture(this.#baseTextureName).then(() => {
-                this.#fullRerender();
-                this.hardRerenderTarget();
-                this.renderTarget();
-            });
-        }
+        this.setBaseTexture(
+            this.#baseTextureName != null
+                ? this.#baseTextureName
+                : this.#baseTexture,
+        ).then(() => {
+            this.#fullRerender();
+            this.hardRerenderTarget();
+            this.renderTarget();
+        });
     }
 
     async toggleAccessory(id: string, configPanel: HTMLDivElement) {

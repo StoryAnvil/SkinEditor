@@ -84,6 +84,7 @@ p {
 .catalogRoot {
     /* Root catalog div element */
     background-color: rgb(19, 19, 19);
+    color: white;
 }
 .catalogSection {
     /* Catalog section div element */

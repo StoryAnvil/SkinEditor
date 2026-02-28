@@ -87,7 +87,26 @@ export class StCatalog {
             return wrapper;
         };
 
-        createEntryRoot("bases", "Skin base");
+        const slimCheckboxFull = document.createElement("div");
+        slimCheckboxFull.style.display = "flex";
+        slimCheckboxFull.style.flexDirection = "row";
+        const slimCheckbox = document.createElement("input");
+        slimCheckbox.type = "checkbox";
+        slimCheckbox.onchange = () => {
+            const typelessWindow: any = window;
+            const builder: StOutfitBuilder = typelessWindow._outfitBuilder;
+            builder.isSlim = slimCheckbox.checked;
+        };
+        slimCheckboxFull.appendChild(slimCheckbox);
+        const slimCheckboxLabel = document.createElement("span");
+        slimCheckboxLabel.innerText = "Slim player model";
+        slimCheckboxLabel.style.textWrap = "nowrap";
+        slimCheckboxFull.appendChild(slimCheckboxLabel);
+
+        createEntryRoot("bases", "Skin base").insertBefore(
+            slimCheckboxFull,
+            this.#sections["bases"],
+        );
         createEntryRoot("hair", "Hair");
         createEntryRoot("hat", "Hat");
         createEntryRoot("face", "Face");
