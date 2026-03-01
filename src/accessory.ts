@@ -274,8 +274,11 @@ export class StOutfitBuilder {
         });
     }
 
-    onConfigChange() {
-        // Call when accessory config changes
+    onConfigChange(accessory: StLoadedAccessory) {
+        /**
+         * Call when accessory config changes.
+         * @param accesory StLoadedAccessory that had its config changed
+         */
         this.#fullRerender();
     }
 

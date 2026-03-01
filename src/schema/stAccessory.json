@@ -138,6 +138,35 @@
                             }
                         },
                         "required": ["type", "name", "minimum", "maximum"]
+                    },
+                    {
+                        "description": "Choice input",
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "description": "Type of this input",
+                                "type": "string",
+                                "enum": ["choice"]
+                            },
+                            "name": {
+                                "description": "Display name for this input",
+                                "type": "string"
+                            },
+                            "choices": {
+                                "description": "Default value for this input. If not specified minimum value is used",
+                                "type": "array",
+                                "items": {
+                                    "description": "Single value this input can take.",
+                                    "type": "string"
+                                }
+                            },
+                            "default": {
+                                "description": "Index of default value for this input. First value is used if this field is not specified",
+                                "type": "integer",
+                                "default": 0
+                            }
+                        },
+                        "required": ["type", "name", "choices"]
                     }
                 ]
             }
@@ -260,6 +289,34 @@
                                 }
                             },
                             "required": ["type"]
+                        },
+                        {
+                            "description": "Enable/Disable layers by choice",
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "description": "Type of this action",
+                                    "type": "string",
+                                    "enum": ["setlayerchoice"]
+                                },
+                                "choices": {
+                                    "description": "Object which keys are choices of the value",
+                                    "additionalItems": {
+                                        "description": "List of layer modifiers to apply of this choice is active",
+                                        "type": "array",
+                                        "items": {
+                                            "description": "Single layer modifier. If start with \"+\" layer is activated, otherwise layer is deactivated.",
+                                            "type": "string",
+                                            "pattern": "$[-+]"
+                                        }
+                                    }
+                                },
+                                "value": {
+                                    "description": "Value to check against",
+                                    "$ref": "#/definitions/value"
+                                }
+                            },
+                            "required": ["type", "choices", "value"]
                         },
                         {
                             "description": "Set layers offset",

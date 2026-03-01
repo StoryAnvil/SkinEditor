@@ -35,6 +35,9 @@ export function loadInput(
     if (type === "constant" || type === "const") {
         return new ConstantInput(json, accesory);
     }
+    if (type === "choice") {
+        return new ChoiceInput(json, accesory);
+    }
     return null;
 }
 export interface StAccessoryInput {
@@ -95,7 +98,7 @@ class ColorInput implements StAccessoryInput {
     ): void {
         panel.appendChild(simpleLabel(this.#name));
         panel.appendChild(this.#input);
-        this.#input.onchange = () => builder.onConfigChange();
+        this.#input.onchange = () => builder.onConfigChange(accesory);
     }
     getValue(builder: StOutfitBuilder, accesory: StLoadedAccessory) {
         let val = this.#input.value;
@@ -128,7 +131,7 @@ class IntRangeInput implements StAccessoryInput {
         builder: StOutfitBuilder,
         accesory: StLoadedAccessory,
     ): void {
-        this.#range.oninput = () => builder.onConfigChange();
+        this.#range.oninput = () => builder.onConfigChange(accesory);
         panel.appendChild(simpleLabel(this.#name));
         panel.appendChild(this.#range);
     }
@@ -152,5 +155,70 @@ class ConstantInput implements StAccessoryInput {
     }
     getValue(builder: StOutfitBuilder, accesory: StLoadedAccessory) {
         return this.#value.getValue(builder, accesory);
+    }
+}
+
+class ChoiceInput implements StAccessoryInput {
+    #choices: string[];
+    #active: number;
+    #domElement: HTMLDivElement;
+    #name: string;
+    #event: () => void;
+
+    constructor(json: any, accessory: StLoadedAccessory) {
+        this.#name = json.name;
+        this.#choices = json.choices;
+        if (json.default) {
+            this.#active = json.default;
+        } else {
+            this.#active = 0;
+        }
+
+        this.#domElement = document.createElement("div");
+        this.#domElement.classList.add("choicesRoot");
+        const radioGroup =
+            "acccfg" +
+            accessory.assignedId +
+            Math.floor(Math.random() * 100000);
+        const elements: HTMLInputElement[] = [];
+        for (let i = 0; i < this.#choices.length; i++) {
+            const choice = this.#choices[i];
+
+            const root = document.createElement("div");
+            root.classList.add("choice");
+
+            const input = document.createElement("input");
+            input.type = "radio";
+            input.name = radioGroup;
+            const finalI = i;
+            input.onchange = () => {
+                this.#active = finalI;
+                this.#event();
+            };
+            root.appendChild(input);
+
+            const label = document.createElement("span");
+            label.innerText = choice;
+            root.appendChild(label);
+
+            elements.push(input);
+
+            this.#domElement.appendChild(root);
+        }
+        elements[this.#active].click();
+    }
+    createCfgPanel(
+        panel: HTMLDivElement,
+        builder: StOutfitBuilder,
+        accesory: StLoadedAccessory,
+    ): void {
+        panel.appendChild(simpleLabel(this.#name));
+        panel.appendChild(this.#domElement);
+        this.#event = () => {
+            builder.onConfigChange(accesory);
+        };
+    }
+    getValue(builder: StOutfitBuilder, accesory: StLoadedAccessory) {
+        return this.#choices[this.#active];
     }
 }

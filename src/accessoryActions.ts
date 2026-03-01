@@ -74,6 +74,9 @@ export function loadAction(json: any, accesory: StLoadedAccessory): StAction {
     if (type === "setlayer") {
         return new SetLayersAction(json);
     }
+    if (type === "setlayerchoice") {
+        return new SetChoosenLayersAction(json, accesory);
+    }
     if (type === "addoffset") {
         return new AddOffsetAction(json, accesory);
     }
@@ -257,6 +260,32 @@ class ExecuteIfBoolAction implements StAction {
         const a = this.#valueA.getValue(builder, accesory);
         for (const action of a ? this.#trueActions : this.#falseActions) {
             action.apply(builder, accesory, layers);
+        }
+    }
+}
+
+class SetChoosenLayersAction implements StAction {
+    #value: StValue;
+    #choices: Str2<string[]>;
+
+    constructor(json: any, accessory: StLoadedAccessory) {
+        this.#value = loadValue(json.value, accessory);
+        this.#choices = json.choices;
+    }
+    apply(
+        builder: StOutfitBuilder,
+        accesory: StLoadedAccessory,
+        layers: Str2<StLayer>,
+    ): void {
+        const a = this.#value.getValue(builder, accesory) + "";
+        if (this.#choices[a]) {
+            for (const mod of this.#choices[a]) {
+                if (mod.startsWith("+")) {
+                    layers[mod.substring(1)].enabledNow = true;
+                } else if (mod.startsWith("-")) {
+                    layers[mod.substring(1)].enabledNow = false;
+                }
+            }
         }
     }
 }
