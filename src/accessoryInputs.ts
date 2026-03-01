@@ -32,6 +32,9 @@ export function loadInput(
     if (type === "color") {
         return new ColorInput(json, accesory);
     }
+    if (type === "constant" || type === "const") {
+        return new ConstantInput(json, accesory);
+    }
     return null;
 }
 export interface StAccessoryInput {
@@ -131,5 +134,23 @@ class IntRangeInput implements StAccessoryInput {
     }
     getValue(builder: StOutfitBuilder, accesory: StLoadedAccessory) {
         return this.#range.value;
+    }
+}
+
+class ConstantInput implements StAccessoryInput {
+    #value: StValue;
+
+    constructor(json: any, accessory: StLoadedAccessory) {
+        this.#value = loadValue(json.value, accessory);
+    }
+    createCfgPanel(
+        panel: HTMLDivElement,
+        builder: StOutfitBuilder,
+        accesory: StLoadedAccessory,
+    ): void {
+        // NOP. Contant inputs do not need any visible indication.
+    }
+    getValue(builder: StOutfitBuilder, accesory: StLoadedAccessory) {
+        return this.#value.getValue(builder, accesory);
     }
 }

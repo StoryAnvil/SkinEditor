@@ -73,6 +73,21 @@
                         "required": ["type", "name", "default"]
                     },
                     {
+                        "description": "Contant input",
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "description": "Type of this input",
+                                "type": "string",
+                                "enum": ["constant", "const"]
+                            },
+                            "value": {
+                                "$ref": "#/definitions/value"
+                            }
+                        },
+                        "required": ["type", "value"]
+                    },
+                    {
                         "description": "Slim or classic input. Returns true if current skin is slim",
                         "type": "object",
                         "properties": {
@@ -336,7 +351,30 @@
                                     "$ref": "#/definitions/actions"
                                 }
                             },
-                            "required": ["type"]
+                            "required": ["type", "condition", "actions"]
+                        },
+                        {
+                            "description": "Execute if boolean value",
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "description": "Type of this action",
+                                    "type": "string",
+                                    "enum": ["ifBool"]
+                                },
+                                "condition": {
+                                    "$ref": "#/definitions/value"
+                                },
+                                "if": {
+                                    "description": "Actions to execute if condition is true",
+                                    "$ref": "#/definitions/actions"
+                                },
+                                "else": {
+                                    "description": "Actions to execute if condition is false",
+                                    "$ref": "#/definitions/actions"
+                                }
+                            },
+                            "required": ["type", "condition"]
                         }
                     ]
                 }

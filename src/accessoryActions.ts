@@ -61,6 +61,7 @@ export function loadActionArray(
     json: any,
     accesory: StLoadedAccessory,
 ): StAction[] {
+    if (!json) return [];
     const actions: StAction[] = [];
     for (const act of json) {
         actions.push(loadAction(act, accesory));
@@ -81,6 +82,9 @@ export function loadAction(json: any, accesory: StLoadedAccessory): StAction {
     }
     if (type === "if") {
         return new ExecuteIfAction(json, accesory);
+    }
+    if (type === "ifBool") {
+        return new ExecuteIfBoolAction(json, accesory);
     }
     return null;
 }
@@ -207,6 +211,52 @@ class ExecuteIfAction implements StAction {
             for (const action of this.#actions) {
                 action.apply(builder, accesory, layers);
             }
+        }
+    }
+}
+
+class ExecuteIfEqualAction implements StAction {
+    #actions: StAction[];
+    #valueA: StValue;
+    #valueB: any;
+
+    constructor(json: any, accessory: StLoadedAccessory, valueB: any) {
+        this.#actions = loadActionArray(json.actions, accessory);
+        this.#valueA = loadValue(json.condition, accessory);
+        this.#valueB = valueB;
+    }
+    apply(
+        builder: StOutfitBuilder,
+        accesory: StLoadedAccessory,
+        layers: Str2<StLayer>,
+    ): void {
+        const a = this.#valueA.getValue(builder, accesory);
+        if (a == this.#valueB) {
+            for (const action of this.#actions) {
+                action.apply(builder, accesory, layers);
+            }
+        }
+    }
+}
+
+class ExecuteIfBoolAction implements StAction {
+    #trueActions: StAction[];
+    #falseActions: StAction[];
+    #valueA: StValue;
+
+    constructor(json: any, accessory: StLoadedAccessory) {
+        this.#trueActions = loadActionArray(json.if, accessory);
+        this.#falseActions = loadActionArray(json.else, accessory);
+        this.#valueA = loadValue(json.condition, accessory);
+    }
+    apply(
+        builder: StOutfitBuilder,
+        accesory: StLoadedAccessory,
+        layers: Str2<StLayer>,
+    ): void {
+        const a = this.#valueA.getValue(builder, accesory);
+        for (const action of a ? this.#trueActions : this.#falseActions) {
+            action.apply(builder, accesory, layers);
         }
     }
 }
